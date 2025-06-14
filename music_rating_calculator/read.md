@@ -1,0 +1,1 @@
+This is something I made last year. I vibe coded the javascript with the help of ChatGPT because I could not bother writing code in Javascript at the time. The first few lines is what I made. Maybe in the future I will come back and polish this. I'm uploading this so I can install it on my laptop.
