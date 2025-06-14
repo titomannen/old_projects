@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music calculator app</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!--
+  <h1>Musikbetyg Kalkylator</h1> 
+  <p>Skriv ett betyg för låt (1-5):</p>
+  <input type="text" id="ratingInput">
+  <button id="addRating">Lägg till betyg</button>
+  <button id="calculateAverage">Beräkna Medelbetyg</button>
+  <p id="ratingsList">Nuvarande betyg:</p>
+  <div id="results"></div>
+-->
+<h1>Musikbetyg Kalkylator</h1>
+
+    <div id="stepContainer">
+        <p>Ange albumtitel:</p>
+        <input type="text" id="albumTitleInput">
+        <p>Ange antal låtar:</p>
+        <input type="number" id="totalSongsInput" min="1">
+        <button id="setAlbumDetails">Fortsätt</button>
+    </div>
+
+    <div id="albumTitleContainer" style="display:none;">
+        <h2 id="albumTitleDisplay"></h2>
+    </div>
+
+    <div id="ratingsContainer" style="display:none;">
+        <div id="ratingInputs"></div>
+        <button id="submitRatings">Beräkna Medelbetyg</button>
+    </div>
+
+    <div id="results"></div>
+
+    <button id="removeData">Ta bort alla sparade album</button>
+  <script src="app.js"></script>
+</body>
+</html>
