@@ -1,171 +1,319 @@
-//Iteration 1
-/*
 document.addEventListener("DOMContentLoaded", function () {
-  const ratings = [];
-  const inputField = document.getElementById("ratingInput");
-  const resultDiv = document.getElementById("results");
+    let albums = JSON.parse(localStorage.getItem("albums")) || [];
+    let currentAlbum = {};
+    let editingAlbumIndex = null;
 
-  document.getElementById("addRating").addEventListener("click", function () {
-      const rating = parseFloat(inputField.value);
-      if (!isNaN(rating)) {
-          ratings.push(rating);
-          inputField.value = "";
-          displayResults();
-      } else {
-          alert("Fel input. Snälla skriv ett nummer.");
-      }
-  });
+    const stepContainer = document.getElementById("stepContainer");
+    const ratingsContainer = document.getElementById("ratingsContainer");
+    const resultDiv = document.getElementById("results");
+    const albumTitleContainer = document.getElementById("albumTitleContainer");
+    const editContainer = document.getElementById("editContainer");
 
-  document.getElementById("calculateAverage").addEventListener("click", function () {
-      if (ratings.length === 0) {
-          alert("Inga tal kunde identifieras.");
-          return;
-      }
+    function saveAlbums() {
+        localStorage.setItem("albums", JSON.stringify(albums));
+    }
 
-      let sum = 0;
-      let countFives = 0;
-      let countOnes = 0;
+    function downloadBackup() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(albums, null, 2));
+        const downloadAnchor = document.createElement("a");
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "album_backup.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
 
-      ratings.forEach(num => {
-          sum += num;
-          if (num === 5) countFives++;
-          if (num === 1) countOnes++;
-      });
+    function uploadBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-      let average = sum / ratings.length;
-      let adjustedFives = countFives * 0.10;
-      let adjustedOnes = countOnes * 0.15;
-      let adjustedScore = average + adjustedFives - adjustedOnes;
-      let finalScore = Math.round(adjustedScore * 2) / 2;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const importedAlbums = JSON.parse(e.target.result);
+                if (Array.isArray(importedAlbums)) {
+                    albums = importedAlbums;
+                    saveAlbums();
+                    displayAlbums();
+                    alert("Backup importerad!");
+                } else {
+                    alert("Ogiltig filstruktur.");
+                }
+            } catch (err) {
+                alert("Fel vid import av fil: " + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
 
-      resultDiv.innerHTML = `
-          <p>Antal låtar: ${ratings.length}</p>
-          <p>Totala värdet: ${sum.toFixed(0)}</p>
-          <p>Medelvärdet: ${average.toFixed(2)}</p>
-          <p>Medelbetyg (ändrat med 1or och 5or): ${adjustedScore.toFixed(2)}</p>
-          <p>Slutbetyg (avrundat): ${finalScore.toFixed(2)}</p>
-      `;
-  });
+    const backupButton = document.createElement("button");
+    backupButton.textContent = "📦 Exportera backup";
+    backupButton.addEventListener("click", downloadBackup);
+    document.body.insertBefore(backupButton, resultDiv);
 
-  function displayResults() {
-      document.getElementById("ratingsList").textContent = "Nuvarande betyg: " + ratings.join(", ");
-  }
-});
-*/
-document.addEventListener("DOMContentLoaded", function () {
-  let albums = JSON.parse(localStorage.getItem("albums")) || [];
-  let currentAlbum = {};
+    const importLabel = document.createElement("label");
+    importLabel.textContent = "📂 Importera backup";
+    importLabel.style.cursor = "pointer";
+    importLabel.style.marginLeft = "10px";
 
-  const stepContainer = document.getElementById("stepContainer");
-  const ratingsContainer = document.getElementById("ratingsContainer");
-  const resultDiv = document.getElementById("results");
-  const albumTitleContainer = document.getElementById("albumTitleContainer");
+    const importInput = document.createElement("input");
+    importInput.type = "file";
+    importInput.accept = ".json";
+    importInput.style.display = "none";
+    importInput.addEventListener("change", uploadBackup);
 
-  function saveAlbums() {
-      localStorage.setItem("albums", JSON.stringify(albums));
-  }
+    importLabel.appendChild(importInput);
+    document.body.insertBefore(importLabel, resultDiv);
 
-  function displayAlbums() {
-      resultDiv.innerHTML = "<h2>Alla sparade album:</h2>";
-      albums.forEach((album, index) => {
-          resultDiv.innerHTML += `
-              <div id="album-${index}">
-                  <h3>${album.title}</h3>
-                  <p>Antal låtar: ${album.songs.length}</p>
-                  <p>Medelbetyg: ${album.average.toFixed(2)}</p>
-                  <p>Medelbetyg (ändrat med 1or och 5or): ${album.adjustedScore.toFixed(2)}</p>
-                  <p>Slutbetyg: ${album.finalScore.toFixed(2)}</p>
-                  <button onclick="removeAlbum(${index})">Ta bort detta album</button>
-              </div>
-          `;
-      });
-  }
+    function displayAlbums(sortValue = "date") {
+        resultDiv.innerHTML = `
+            <h2>Alla sparade album (${albums.length}):</h2>
+            <input type="text" id="searchInput" placeholder="Sök artist eller album..." />
+            <div id="sortControls">
+                <label for="sortSelect">Sortera efter: </label>
+                <select id="sortSelect">
+                    <option value="date">Datum</option>
+                    <option value="artist">Artist</option>
+                    <option value="average">Medelbetyg</option>
+                    <option value="adjusted">Ändrat betyg</option>
+                </select>
+            </div>
+            <div id="albumGrid"></div>`;
 
-  document.getElementById("setAlbumDetails").addEventListener("click", function () {
-      let albumTitle = document.getElementById("albumTitleInput").value.trim();
-      let totalSongs = parseInt(document.getElementById("totalSongsInput").value);
-      
-      if (!albumTitle) {
-          alert("Snälla skriv ett albumtitel.");
-          return;
-      }
-      
-      if (isNaN(totalSongs) || totalSongs <= 0) {
-          alert("Snälla skriv ett giltigt antal låtar.");
-          return;
-      }
-      
-      currentAlbum = {
-          title: albumTitle,
-          songs: new Array(totalSongs).fill(null),
-      };
-      
-      stepContainer.style.display = "none";
-      ratingsContainer.style.display = "block";
-      albumTitleContainer.style.display = "block";
-      document.getElementById("albumTitleDisplay").textContent = `Album: ${albumTitle}`;
-      generateRatingInputs();
-  });
+        const albumGrid = document.getElementById("albumGrid");
+        const searchInput = document.getElementById("searchInput");
 
-  function generateRatingInputs() {
-      const ratingInputsDiv = document.getElementById("ratingInputs");
-      ratingInputsDiv.innerHTML = "";
-      for (let i = 0; i < currentAlbum.songs.length; i++) {
-          const inputWrapper = document.createElement("div");
-          inputWrapper.innerHTML = `
-              <label for="song${i}">Låt ${i + 1} betyg (1-5): </label>
-              <input type="number" id="song${i}" min="1" max="5">
-          `;
-          ratingInputsDiv.appendChild(inputWrapper);
-      }
-  }
+        function renderAlbums() {
+            albumGrid.innerHTML = "";
+            let filteredAlbums = [...albums];
+            const searchTerm = searchInput.value.toUpperCase();
 
-  document.getElementById("submitRatings").addEventListener("click", function () {
-      for (let i = 0; i < currentAlbum.songs.length; i++) {
-          const rating = parseFloat(document.getElementById(`song${i}`).value);
-          if (isNaN(rating) || rating < 1 || rating > 5) {
-              alert(`Fel input för låt ${i + 1}. Snälla skriv ett nummer mellan 1 och 5.`);
-              return;
-          }
-          currentAlbum.songs[i] = rating;
-      }
+            if (searchTerm) {
+                filteredAlbums = filteredAlbums.filter(album =>
+                    album.artist.includes(searchTerm) || album.title.includes(searchTerm)
+                );
+            }
 
-      let sum = currentAlbum.songs.reduce((a, b) => a + b, 0);
-      let average = sum / currentAlbum.songs.length;
-      let countFives = currentAlbum.songs.filter(num => num === 5).length;
-      let countOnes = currentAlbum.songs.filter(num => num === 1).length;
-      let adjustedFives = countFives * 0.10;
-      let adjustedOnes = countOnes * 0.15;
-      let adjustedScore = average + adjustedFives - adjustedOnes;
-      let finalScore = Math.round(adjustedScore * 2) / 2;
+            switch (document.getElementById("sortSelect").value) {
+                case "artist":
+                    filteredAlbums.sort((a, b) => a.artist.localeCompare(b.artist));
+                    break;
+                case "average":
+                    filteredAlbums.sort((a, b) => b.average - a.average);
+                    break;
+                case "adjusted":
+                    filteredAlbums.sort((a, b) => b.adjustedScore - a.adjustedScore);
+                    break;
+                case "date":
+                default:
+                    filteredAlbums.sort((a, b) => new Date(b.lastEdited) - new Date(a.lastEdited));
+            }
 
-      currentAlbum.average = average;
-      currentAlbum.adjustedScore = adjustedScore;
-      currentAlbum.finalScore = finalScore;
-      albums.push(currentAlbum);
-      saveAlbums();
-      
-      stepContainer.style.display = "block";
-      ratingsContainer.style.display = "none";
-      albumTitleContainer.style.display = "none";
-      document.getElementById("albumTitleInput").value = "";
-      document.getElementById("totalSongsInput").value = "";
+            filteredAlbums.forEach((album, index) => {
+                const actualIndex = albums.findIndex(a =>
+                    a.artist === album.artist &&
+                    a.title === album.title &&
+                    a.lastEdited === album.lastEdited
+                );
+                const changeDate = album.lastEdited ? `<p>Senast ändrad: ${album.lastEdited}</p>` : "";
+                const albumCard = document.createElement("div");
+                albumCard.className = "albumCard";
+                albumCard.innerHTML = `
+                    <h3>${album.artist} – ${album.title}</h3>
+                    <p>Antal låtar: ${album.songs.length}</p>
+                    <p>Antal betygsatta låtar: ${album.songs.filter(r => r !== 0).length}</p>
+                    <p>Medelbetyg: ${album.average.toFixed(2)}</p>
+                    <p>Medelbetyg (ändrat med 1or och 5or): ${album.adjustedScore.toFixed(2)}</p>
+                    <p>Slutbetyg: ${album.finalScore.toFixed(2)}</p>
+                    ${changeDate}
+                    <button onclick="editAlbum(${actualIndex})">Redigera betyg</button>
+                    <button onclick="confirmRemoveAlbum(${actualIndex})">Ta bort detta album</button>
+                `;
+                albumGrid.appendChild(albumCard);
+            });
+        }
 
-      displayAlbums();
-  });
+        document.getElementById("sortSelect").addEventListener("change", renderAlbums);
+        searchInput.addEventListener("input", renderAlbums);
+        renderAlbums();
+    }
 
-  window.removeAlbum = function (index) {
-      albums.splice(index, 1);
-      saveAlbums();
-      displayAlbums();
-  };
+    document.getElementById("setAlbumDetails").addEventListener("click", function () {
+        let artist = document.getElementById("artistInput").value.trim().toUpperCase();
+        let title = document.getElementById("titleInput").value.trim().toUpperCase();
+        let totalSongs = parseInt(document.getElementById("totalSongsInput").value);
 
-  document.getElementById("removeData").addEventListener("click", function () {
-      localStorage.removeItem("albums");
-      albums = [];
-      alert("Alla sparade album har tagits bort.");
-      location.reload();
-  });
+        if (!artist || !title) {
+            alert("Snälla skriv både artist och albumtitel.");
+            return;
+        }
 
-  displayAlbums();
+        if (isNaN(totalSongs) || totalSongs <= 0) {
+            alert("Snälla skriv ett giltigt antal låtar.");
+            return;
+        }
+
+        currentAlbum = {
+            artist,
+            title,
+            songs: new Array(totalSongs).fill(null),
+            lastEdited: null,
+        };
+
+        stepContainer.style.display = "none";
+        ratingsContainer.style.display = "block";
+        albumTitleContainer.style.display = "block";
+        document.getElementById("albumTitleDisplay").textContent = `Album: ${artist} – ${title}`;
+        generateRatingInputs();
+    });
+
+    function generateRatingInputs() {
+        const ratingInputsDiv = document.getElementById("ratingInputs");
+        ratingInputsDiv.innerHTML = "";
+        for (let i = 0; i < currentAlbum.songs.length; i++) {
+            const inputWrapper = document.createElement("div");
+            inputWrapper.innerHTML = `
+                <p>Låt ${i + 1}</p>
+                <div id="song${i}" class="rating-buttons">
+                    ${[1, 2, 3, 4, 5].map(n => `<button onclick="setRating(${i}, ${n})">${n}</button>`).join(" ")}
+                    <button onclick="setRating(${i}, 0)">Unrated</button>
+                </div>
+            `;
+            ratingInputsDiv.appendChild(inputWrapper);
+        }
+    }
+
+    window.setRating = function (index, value) {
+        currentAlbum.songs[index] = value;
+        const colors = {
+            0: "#cccccc",
+            1: "#e63946",
+            2: "#f77f00",
+            3: "#fcbf49",
+            4: "#80ed99",
+            5: "#4cc9f0"
+        };
+        document.querySelectorAll(`#song${index} button`).forEach(btn => {
+            btn.style.backgroundColor = btn.textContent == value || (value === 0 && btn.textContent === "Unrated") ? colors[value] : "";
+        });
+    };
+
+    document.getElementById("submitRatings").addEventListener("click", function () {
+        if (currentAlbum.songs.some(r => r === null)) {
+            alert("Alla låtar måste ha ett betyg eller markeras som unrated.");
+            return;
+        }
+
+        calculateAndSave(currentAlbum);
+        albums.push(currentAlbum);
+        saveAlbums();
+
+        stepContainer.style.display = "block";
+        ratingsContainer.style.display = "none";
+        albumTitleContainer.style.display = "none";
+        document.getElementById("artistInput").value = "";
+        document.getElementById("titleInput").value = "";
+        document.getElementById("totalSongsInput").value = "";
+
+        displayAlbums();
+    });
+
+    function calculateAndSave(album) {
+        const ratedSongs = album.songs.filter(r => r > 0);
+        let sum = ratedSongs.reduce((a, b) => a + b, 0);
+        let average = sum / ratedSongs.length;
+        let countFives = ratedSongs.filter(num => num === 5).length;
+        let countOnes = ratedSongs.filter(num => num === 1).length;
+        let adjustedFives = countFives * 0.10;
+        let adjustedOnes = countOnes * 0.15;
+        let adjustedScore = average + adjustedFives - adjustedOnes;
+        let finalScore = Math.round(adjustedScore * 2) / 2;
+
+        album.average = average;
+        album.adjustedScore = adjustedScore;
+        album.finalScore = finalScore;
+        album.lastEdited = new Date().toLocaleString("sv-SE", {
+            dateStyle: "short",
+            timeStyle: "short"
+        });
+
+    }
+
+    window.confirmRemoveAlbum = function (index) {
+        const album = albums[index];
+        const confirmDelete = confirm(`Är du säker på att du vill ta bort albumet: ${album.artist} – ${album.title}?`);
+        if (confirmDelete) {
+            albums.splice(index, 1);
+            saveAlbums();
+            displayAlbums();
+        }
+    };
+      window.editAlbum = function (index) {
+        editingAlbumIndex = index;
+        currentAlbum = JSON.parse(JSON.stringify(albums[index]));
+
+        const editInputsDiv = document.getElementById("editInputs");
+        editInputsDiv.innerHTML = "";
+        document.getElementById("editTitle").textContent = `Redigera: ${currentAlbum.artist} – ${currentAlbum.title}`;
+
+        for (let i = 0; i < currentAlbum.songs.length; i++) {
+            const inputWrapper = document.createElement("div");
+            inputWrapper.innerHTML = `
+                <p>Låt ${i + 1}</p>
+                <div id="editSong${i}" class="rating-buttons">
+                    ${[1, 2, 3, 4, 5].map(n => `<button onclick="setEditRating(${i}, ${n})" style="${n === currentAlbum.songs[i] ? 'background-color:' + getColor(n) : ''}">${n}</button>`).join(" ")}
+                    <button onclick="setEditRating(${i}, 0)" style="${currentAlbum.songs[i] === 0 ? 'background-color:#cccccc' : ''}">Unrated</button>
+                </div>
+            `;
+            editInputsDiv.appendChild(inputWrapper);
+        }
+
+        resultDiv.style.display = "none";
+        editContainer.style.display = "block";
+    };
+
+    window.setEditRating = function (index, value) {
+        currentAlbum.songs[index] = value;
+        const colors = {
+            0: "#cccccc",
+            1: "#e63946",
+            2: "#f77f00",
+            3: "#fcbf49",
+            4: "#80ed99",
+            5: "#4cc9f0"
+        };
+        document.querySelectorAll(`#editSong${index} button`).forEach(btn => {
+            btn.style.backgroundColor =
+                (btn.textContent == value || (value === 0 && btn.textContent === "Unrated")) ? colors[value] : "";
+        });
+    };
+
+    document.getElementById("saveEdit").addEventListener("click", function () {
+        if (currentAlbum.songs.some(r => r === null)) {
+            alert("Alla låtar måste ha ett betyg eller markeras som unrated.");
+            return;
+        }
+
+        calculateAndSave(currentAlbum);
+        albums[editingAlbumIndex] = currentAlbum;
+        saveAlbums();
+
+        editContainer.style.display = "none";
+        resultDiv.style.display = "block";
+        displayAlbums();
+    });
+
+    function getColor(value) {
+        const colors = {
+            0: "#cccccc",
+            1: "#e63946",
+            2: "#f77f00",
+            3: "#fcbf49",
+            4: "#80ed99",
+            5: "#4cc9f0"
+        };
+        return colors[value];
+    }
+
+    displayAlbums();
 });
