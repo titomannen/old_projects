@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Music calculator app</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -20,7 +21,8 @@
 
     <div id="stepContainer">
         <p>Ange albumtitel:</p>
-        <input type="text" id="albumTitleInput">
+        <input id="artistInput" placeholder="Artist" />
+        <input id="titleInput" placeholder="Album Title" />
         <p>Ange antal låtar:</p>
         <input type="number" id="totalSongsInput" min="1">
         <button id="setAlbumDetails">Fortsätt</button>
@@ -35,9 +37,20 @@
         <button id="submitRatings">Beräkna Medelbetyg</button>
     </div>
 
-    <div id="results"></div>
+    <div id="editContainer" style="display:none;">
+        <h2 id="editTitle"></h2>
+        <div id="editInputs"></div>
+        <button id="saveEdit">Spara ändringar</button>
+    </div>
 
-    <button id="removeData">Ta bort alla sparade album</button>
+
+    <div id="results"></div>
+    <div id="editContainer" style="display:none;">
+        <h2 id="editTitle"></h2>
+        <div id="editInputs"></div>
+        <button id="saveEdit">Spara ändringar</button>
+    </div>
+
   <script src="app.js"></script>
 </body>
 </html>
