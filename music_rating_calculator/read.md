@@ -5,3 +5,6 @@ It gives you the option to provide name of album and how many songs there are in
 
 Inspiration to make this:
 I usually did this for ratemymusic by doing the mathematics in my head or using the online calculator, but then one day I thought "I know how to program, let me build an application to do this for me" so I wrote it in Python flawlessly but then I got bored of putting in the 1, 2, 3, 4, 5 in the input tab so I decided to make it more interactable through HTML and JS.
+
+Updated version as of 17/08/2025:
+<img width="1778" height="959" alt="image" src="https://github.com/user-attachments/assets/b0bc89f1-105a-4bce-bc97-e085cf4ee85c" />
