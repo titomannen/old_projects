@@ -1,3 +1,11 @@
+*,
+*::before,
+*::after{
+
+    box-sizing:border-box;
+
+}
+
 /* ==========================
    Base
 ========================== */
@@ -46,25 +54,106 @@ h3 {
     align-items: flex-start;
 }
 
-#sidebar {
-    width: 420px;
-    flex-shrink: 0;
+#sidebar{
 
-    background:#ececec;
-    border:1px solid #a7adb4;
-    border-radius: 10px;
+    width:420px;
+    flex-shrink:0;
 
-    display: flex;
-    flex-direction: column;
+    display:flex;
+    flex-direction:column;
 
-    height: calc(100vh - 80px);
+    height:calc(100vh - 80px);
+
+    background:linear-gradient(
+        #efefef,
+        #dfdfdf
+    );
+
+    border:1px solid #9fa6ad;
+
+    border-radius:8px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.8);
+
 }
 
-#results {
-    flex: 1;
-    overflow-y: auto;
+#sidebar h2{
 
-    padding: 12px;
+    color:#2f4f73;
+
+    font-size:22px;
+
+    font-weight:700;
+
+    margin-bottom:18px;
+
+}
+
+.libraryInfo{
+
+    font-size:13px;
+
+    color:#666;
+
+    margin-bottom:14px;
+
+    
+}
+
+.libraryCount{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    width:fit-content;
+
+    padding:4px 10px;
+
+    margin:0 auto 16px;
+
+    background:linear-gradient(
+        #f8f8f8,
+        #e7e7e7
+    );
+
+    border:1px solid #b6bcc2;
+
+    border-radius:999px;
+
+    color:#555;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+#libraryControls{
+
+    flex-shrink:0;
+
+}
+
+#results{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    height:100%;
+
+    padding:12px;
+
+    overflow:hidden;
+
 }
 
 #workspace {
@@ -78,9 +167,85 @@ h3 {
     background:#f4f5f7;
 
     border:1px solid #9ea5ad;
-    border-radius: 10px;
+    border-radius: 4px;
 
     padding: 20px;
+}
+
+#toolbar{
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    padding:12px 14px;
+
+    margin-bottom:18px;
+
+    background:linear-gradient(
+        #efefef,
+        #dfdfdf
+    );
+
+    border:1px solid #9fa6ad;
+
+    border-radius:4px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.8);
+
+}
+
+#toolbar input{
+
+    height:32px;
+
+    padding:0 10px;
+
+    box-sizing:border-box;
+
+    border:1px solid #9fa6ad;
+
+    background:white;
+
+    border-radius:3px;
+
+    font-size:13px;
+
+    box-shadow:
+        inset 0 1px 2px rgba(0,0,0,.08);
+
+}
+
+#artistInput{
+
+    width:180px;
+
+}
+
+#titleInput{
+
+    flex:1;
+
+    min-width:220px;
+
+}
+
+.toolbarSpacer{
+
+    flex:1;
+
+}
+
+#toolbar input:focus{
+
+    outline:none;
+
+    border-color:#5f8ec8;
+
+    box-shadow:
+        0 0 0 2px rgba(95,142,200,.2);
+
 }
 
 
@@ -88,24 +253,102 @@ h3 {
    Buttons
 ========================== */
 
-button {
-    background-color: #f582ae;
-    color: white;
+button,
+.secondaryButton{
 
-    border: none;
-    border-radius: 6px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
 
-    padding: 8px 12px;
-    margin: 5px 0;
+    height:32px;
 
-    cursor: pointer;
-    font-family: inherit;
+    padding:7px 14px;
 
-    transition: 0.2s ease;
+    font-size:13px;
+    font-weight:600;
+
+    border-radius:3px;
+
+    cursor:pointer;
+
+    user-select:none;
+
+    transition:
+        background .15s,
+        border-color .15s,
+        box-shadow .15s;
+
 }
 
-button:hover {
-    background-color: #ffb3c1;
+
+button:active{
+
+    background:linear-gradient(
+        #d7d7d7,
+        #efefef
+    );
+
+    box-shadow:
+        inset 0 2px 3px rgba(0,0,0,.15);
+
+}
+
+.primaryButton{
+
+    background:linear-gradient(
+        #5c89c8,
+        #3d6ca8
+    );
+
+
+    min-width:95px;
+
+    border:1px solid #2d5687;
+
+    color:white;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.25);
+
+}
+
+.primaryButton:hover{
+
+    background:linear-gradient(
+        #6b97d4,
+        #4878b6
+    );
+
+}
+
+.secondaryButton,
+button:not(.primaryButton){
+
+    background:linear-gradient(
+        #fbfbfb,
+        #dddddd
+    );
+
+    border:1px solid #9fa6ad;
+
+    color:#222;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.85);
+
+}
+
+.secondaryButton:hover,
+button:not(.primaryButton):hover{
+
+    background:linear-gradient(
+        #ffffff,
+        #ececec
+    );
+
+    border-color:#6e8eb7;
+
 }
 
 .rating-buttons button {
@@ -114,32 +357,113 @@ button:hover {
     font-size: 15px;
 }
 
+.backupLabel{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
 
 /* ==========================
    Forms
 ========================== */
 
-#searchInput,
-#sortSelect {
-    padding: 8px;
-    margin: 10px 5px;
+#searchInput{
 
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    width:100%;
 
-    font-family: inherit;
+    height:32px;
+
+    margin:0 0 12px;
+
+    padding:0 12px;
+
+    border:1px solid #9fa6ad;
+
+    border-radius:3px;
+
+    background:white;
+
+    font-size:13px;
+
+    box-sizing:border-box;
+
+    box-shadow:
+        inset 0 1px 2px rgba(0,0,0,.08);
+
 }
 
+#sortControls{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    margin-bottom:16px;
+
+}
+
+#sortControls label{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#2f4f73;
+
+}
+
+#sortSelect{
+
+    width:150px;
+
+    height:32px;
+
+    padding:0 8px;
+
+    border:1px solid #9fa6ad;
+
+    border-radius:3px;
+
+    background:linear-gradient(
+        #ffffff,
+        #ececec
+    );
+
+    font-size:13px;
+
+    box-sizing:border-box;
+
+}
 
 /* ==========================
    Album Grid
 ========================== */
 
-#albumGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 18px;
-    padding: 10px;
+#albumGrid{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    border-top:1px solid #c8c8c8;
+
+    padding-top:14px;
+
 }
 
 
@@ -148,36 +472,71 @@ button:hover {
 ========================== */
 
 .albumCard{
+
     display:flex;
     align-items:center;
     gap:14px;
 
     padding:10px;
 
-    border:none;
-    border-bottom:1px solid #ddd;
-    border-radius:0;
+    background:linear-gradient(
+        #fcfcfc,
+        #ececec
+    );
 
-    background:white;
+    border:1px solid #b0b5bc;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.8);
+
+    border-radius:2px;
 
     cursor:pointer;
 
-    transition:.15s;
+    transition:
+        background .15s,
+        border-color .15s,
+        box-shadow .15s;
+
+        
 }
 
 .albumCard:hover{
 
-    background:#eef5ff;
+    background:linear-gradient(
+        #ffffff,
+        #f2f2f2
+    );
+
+    border-color:#8d97a3;
+
+}
+
+.albumCard.selected{
+
+    background:linear-gradient(
+        #dfeeff,
+        #cfdff5
+    );
+
+    border-color:#4d78b0;
 
 }
 
 .albumMeta{
+
     display:flex;
+
     flex-direction:column;
+
     align-items:flex-end;
+
+    justify-content:center;
+
     gap:6px;
 
     flex-shrink:0;
+
 }
 
 .albumScore{
@@ -198,11 +557,19 @@ button:hover {
 
 .albumStars{
 
-    font-size:18px;
+    color:#c89200;
 
-    color:#d8a000;
+    font-size:15px;
 
     letter-spacing:1px;
+
+}
+
+.albumDate{
+
+    font-size:13px;
+
+    color:#666;
 
 }
 
@@ -218,11 +585,25 @@ button:hover {
 
     object-fit:cover;
 
+    flex-shrink:0;
+
+    padding:2px;
+
+    background:linear-gradient(
+        #fdfdfd,
+        #e6e6e6
+    );
+
+    border:1px solid #7f858c;
+
+    outline:1px solid #ffffff;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.9),
+        0 2px 4px rgba(0,0,0,.18);
+
     border-radius:2px;
 
-    margin:0;
-
-    flex-shrink:0;
 }
 
 .albumInfo{
@@ -262,11 +643,27 @@ button:hover {
 
 .albumScore{
 
-    margin-top:8px;
+    padding:3px 10px;
+
+    min-width:42px;
+
+    border-radius:999px;
+
+    text-align:center;
 
     font-weight:700;
 
-    color:#2d6cdf;
+    color:white;
+
+}
+
+.albumRelease{
+
+    margin-top:2px;
+
+    font-size:13px;
+
+    color:#777;
 
 }
 
@@ -452,3 +849,138 @@ button:hover {
     background:linear-gradient(#ffffff,#f5f5f5);
 }
 
+#editCover{
+
+    width:240px;
+
+    height:240px;
+
+    object-fit:cover;
+
+    border:1px solid #8f8f8f;
+
+    box-shadow:
+        0 4px 10px rgba(0,0,0,.25);
+
+}
+
+#albumHero{
+
+    display:flex;
+
+    gap:30px;
+
+    align-items:flex-start;
+
+    margin-bottom:30px;
+
+}
+
+#detailCover{
+
+    width:240px;
+
+    height:240px;
+
+    object-fit:cover;
+
+    border:1px solid #8e8e8e;
+
+    border-radius:4px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.2);
+
+    background:#ddd;
+
+}
+
+#detailInfo{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+#albumContent{
+
+    display:grid;
+
+    grid-template-columns:2fr 1fr;
+
+    gap:40px;
+
+}
+
+#albumStats{
+
+    background:#f5f5f5;
+
+    border:1px solid #c4c4c4;
+
+    border-radius:6px;
+
+    padding:18px;
+
+}
+
+#trackList{
+
+    border:1px solid #c4c4c4;
+
+    border-radius:6px;
+
+    overflow:hidden;
+
+}
+
+.trackRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 4px 0;
+    gap: 20px;
+}
+
+.trackTitle {
+    flex: 1;
+}
+
+.trackRating {
+    width: 120px;
+}
+
+.redOption{
+
+    color:#e63946;
+
+    font-weight:bold;
+
+}
+
+.orangeOption{
+
+    color:#f77f00;
+
+}
+
+.yellowOption{
+
+    color:#fcbf49;
+
+}
+
+.greenOption{
+
+    color:#80ed99;
+
+}
+
+.blueOption{
+
+    color:#4cc9f0;
+
+}

@@ -24,6 +24,10 @@
 
             <h2>Bibliotek</h2>
 
+            <p id="libraryCount" class="libraryCount">
+                💿 195 album
+            </p>
+
             <div id="results"></div>
 
         </aside>
@@ -31,9 +35,21 @@
         <!-- Workspace -->
         <section id="workspace">
 
-            <div id="stepContainer">
+            <div id="editContainer" style="display:none;">
 
-                <p>Ange artist och album</p>
+                <h2 id="editTitle"></h2>
+
+                <div id="editInputs"></div>
+
+                <button
+                    id="saveEdit"
+                    class="primaryButton">
+                    Spara ändringar
+                </button>
+
+            </div>
+
+            <div id="toolbar">
 
                 <input
                     id="artistInput"
@@ -42,12 +58,35 @@
 
                 <input
                     id="titleInput"
-                    placeholder="Album Title"
+                    placeholder="Album"
                 >
 
-                <button id="setAlbumDetails">
+                <button
+                    id="setAlbumDetails"
+                    class="primaryButton">
                     Hämta album
                 </button>
+
+                <div class="toolbarSpacer"></div>
+
+                <button
+                    id="backupButton"
+                    class="secondaryButton">
+                    💾 Exportera
+                </button>
+
+                <label
+                    for="importInput"
+                    class="secondaryButton backupLabel">
+                    📂 Importera
+                </label>
+
+                <input
+                    id="importInput"
+                    type="file"
+                    accept=".json"
+                    hidden
+                >
 
             </div>
 
@@ -61,43 +100,48 @@
 
                 <div id="ratingInputs"></div>
 
-                <button id="submitRatings">
+                <button id="submitRatings" class="primaryButton">
                     Beräkna Medelbetyg
                 </button>
 
             </div>
 
-            <div id="editContainer" style="display:none;">
+            <div id="albumDetails" style="display:none;">
 
-                <h2 id="editTitle"></h2>
+                <div id="albumHero">
 
-                <div id="editInputs"></div>
+                    <img id="detailCover">
 
-                <button id="saveEdit">
-                    Spara ändringar
+                    <div id="detailInfo">
+
+                        <h2 id="detailTitle"></h2>
+
+                        <p id="detailArtist"></p>
+
+                        <p id="detailYear"></p>
+
+
+                    </div>
+
+                </div>
+
+                <div id="albumContent">
+
+                    <div id="trackList"></div>
+
+                    <div id="albumStats"></div>
+
+                </div>
+
+                <button
+                    id="saveChangesButton"
+                    class="primaryButton">
+                    Save Changes
                 </button>
 
-            </div>
-
-            <div id="backupControls">
-
-                <button id="backupButton">
-                    📦 Exportera backup
+                <button id="deleteAlbumButton" class="secondaryButton">
+                    🗑 Remove Album
                 </button>
-
-                <label
-                    for="importInput"
-                    class="backupLabel"
-                >
-                    📂 Importera backup
-                </label>
-
-                <input
-                    id="importInput"
-                    type="file"
-                    accept=".json"
-                    hidden
-                >
 
             </div>
 
