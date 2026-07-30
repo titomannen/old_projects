@@ -1,79 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Music calculator app</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Calculator App</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
-<h1>Musikbetyg Kalkylator</h1>
+<div id="app">
 
-<div id="stepContainer">
-    <p>Ange artist och album</p>
-    <input id="artistInput" placeholder="Artist" />
-    <input id="titleInput" placeholder="Album Title" />
+    <header id="header">
+        <h1>Musikbetyg Kalkylator</h1>
+    </header>
 
-    <button id="setAlbumDetails">Hämta album</button>
-</div>
+    <div id="layout">
 
-<div id="albumTitleContainer" style="display:none;">
-    <h2 id="albumTitleDisplay"></h2>
-</div>
+        <!-- Sidebar -->
+        <aside id="sidebar">
 
-<div id="ratingsContainer" style="display:none;">
-    <div id="ratingInputs"></div>
-    <button id="submitRatings">Beräkna Medelbetyg</button>
-</div>
+            <h2>Bibliotek</h2>
 
-<div id="editContainer" style="display:none;">
-    <h2 id="editTitle"></h2>
-    <div id="editInputs"></div>
-    <button id="saveEdit">Spara ändringar</button>
-</div>
+            <div id="results"></div>
 
-<div id="releasePopup" class="popup hidden">
+        </aside>
 
-    <div class="popupContent">
+        <!-- Workspace -->
+        <section id="workspace">
 
-        <h2>Select Release</h2>
+            <div id="stepContainer">
 
-        <p>Choose the correct version of the album.</p>
+                <p>Ange artist och album</p>
 
-        <div id="releaseList"></div>
+                <input
+                    id="artistInput"
+                    placeholder="Artist"
+                >
 
-        <div id="releasePreview">
+                <input
+                    id="titleInput"
+                    placeholder="Album Title"
+                >
 
-            <img id="releaseCover" src="" alt="Album Cover">
-
-            <div id="releaseInfo">
-
-                <p id="releaseCountry"></p>
-
-                <p id="releaseFormat"></p>
-
-                <p id="releaseLabel"></p>
-
-                <p id="releaseTracks"></p>
-
-                <p id="releaseGenres"></p>
+                <button id="setAlbumDetails">
+                    Hämta album
+                </button>
 
             </div>
 
-        </div>
+            <div id="albumTitleContainer" style="display:none;">
 
-        <div class="popupButtons">
+                <h2 id="albumTitleDisplay"></h2>
 
-            <button id="confirmRelease">
-                Import Album
-            </button>
+            </div>
 
-            <button id="cancelRelease">
-                Cancel
-            </button>
+            <div id="ratingsContainer" style="display:none;">
+
+                <div id="ratingInputs"></div>
+
+                <button id="submitRatings">
+                    Beräkna Medelbetyg
+                </button>
+
+            </div>
+
+            <div id="editContainer" style="display:none;">
+
+                <h2 id="editTitle"></h2>
+
+                <div id="editInputs"></div>
+
+                <button id="saveEdit">
+                    Spara ändringar
+                </button>
+
+            </div>
+
+            <div id="backupControls">
+
+                <button id="backupButton">
+                    📦 Exportera backup
+                </button>
+
+                <label
+                    for="importInput"
+                    class="backupLabel"
+                >
+                    📂 Importera backup
+                </label>
+
+                <input
+                    id="importInput"
+                    type="file"
+                    accept=".json"
+                    hidden
+                >
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Release Popup -->
+    <div id="releasePopup" class="popup hidden">
+
+        <div class="popupContent">
+
+            <div class="dialogTitle">
+                Select Album Release
+            </div>
+
+            <div class="popupBody">
+
+                <p>Choose the correct version of the album.</p>
+
+                <div class="releaseLayout">
+
+                    <div id="releaseList"></div>
+
+                    <div id="releasePreview">
+
+                        <img
+                            id="releaseCover"
+                            src=""
+                            alt="Album Cover"
+                        >
+
+                        <div id="releaseInfo">
+
+                            <p id="releaseCountry"></p>
+                            <p id="releaseFormat"></p>
+                            <p id="releaseLabel"></p>
+                            <p id="releaseTracks"></p>
+                            <p id="releaseGenres"></p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="popupButtons">
+
+                <button id="confirmRelease">
+                    Import Album
+                </button>
+
+                <button id="cancelRelease">
+                    Cancel
+                </button>
+
+            </div>
 
         </div>
 
@@ -81,27 +164,7 @@
 
 </div>
 
-<div id="backupControls">
-
-    <button id="backupButton">
-        📦 Exportera backup
-    </button>
-
-    <label for="importInput" class="backupLabel">
-        📂 Importera backup
-    </label>
-
-    <input
-        id="importInput"
-        type="file"
-        accept=".json"
-        hidden
-    >
-
-</div>
-
-<div id="results"></div>
-
 <script src="app.js"></script>
+
 </body>
 </html>

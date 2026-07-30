@@ -1,18 +1,14 @@
-/* Rating buttons */
-
-.rating-buttons button {
-    margin: 4px;
-    padding: 8px 12px;
-    font-size: 15px;
-    cursor: pointer;
-    border-radius: 6px;
-}
-
-/* Base page */
+/* ==========================
+   Base
+========================== */
 
 body {
-    font-family: 'Barlow', sans-serif;
-    background-color: #fef6e4;
+    font-family:
+    "Segoe UI",
+    Tahoma,
+    Arial,
+    sans-serif;
+    background:#d9dce1;
     color: #001858;
     margin: 0;
     padding: 10px;
@@ -23,32 +19,121 @@ h1 {
     margin-bottom: 20px;
 }
 
-h2, h3 {
+h2,
+h3 {
     text-align: center;
     color: #ff6f61;
     margin-bottom: 8px;
 }
 
-/* Buttons */
+
+/* ==========================
+   Layout
+========================== */
+
+#app {
+    width:min(1800px,95vw);
+    margin: 0 auto;
+}
+
+#header {
+    margin-bottom: 20px;
+}
+
+#layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+#sidebar {
+    width: 420px;
+    flex-shrink: 0;
+
+    background:#ececec;
+    border:1px solid #a7adb4;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+
+    height: calc(100vh - 80px);
+}
+
+#results {
+    flex: 1;
+    overflow-y: auto;
+
+    padding: 12px;
+}
+
+#workspace {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: calc(100vh - 80px);
+
+    background:#f4f5f7;
+
+    border:1px solid #9ea5ad;
+    border-radius: 10px;
+
+    padding: 20px;
+}
+
+
+/* ==========================
+   Buttons
+========================== */
 
 button {
     background-color: #f582ae;
     color: white;
+
     border: none;
+    border-radius: 6px;
+
     padding: 8px 12px;
     margin: 5px 0;
-    border-radius: 6px;
+
     cursor: pointer;
     font-family: inherit;
+
     transition: 0.2s ease;
 }
 
 button:hover {
     background-color: #ffb3c1;
-    transform: translateY(-1px);
 }
 
-/* Album grid */
+.rating-buttons button {
+    margin: 4px;
+    padding: 8px 12px;
+    font-size: 15px;
+}
+
+
+/* ==========================
+   Forms
+========================== */
+
+#searchInput,
+#sortSelect {
+    padding: 8px;
+    margin: 10px 5px;
+
+    border: 1px solid #ddd;
+    border-radius: 6px;
+
+    font-family: inherit;
+}
+
+
+/* ==========================
+   Album Grid
+========================== */
 
 #albumGrid {
     display: grid;
@@ -57,100 +142,313 @@ button:hover {
     padding: 10px;
 }
 
-/* Album cards */
 
-.albumCard {
-    background-color: #fff;
-    border: 2px dashed #f582ae;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
-    transition: 0.25s ease;
-}
+/* ==========================
+   Album Cards
+========================== */
 
-.albumCard:hover {
-    transform: scale(1.03);
-}
-
-/* Album cover image */
-
-.albumCover,
-.albumCard img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 10px;
-}
-
-/* Search + sort controls */
-
-#searchInput,
-#sortSelect {
-    padding: 8px;
-    margin: 10px 5px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    font-family: inherit;
-}
-
-.popup{
-
-    position:fixed;
-
-    inset:0;
-
-    background:rgba(0,0,0,.45);
-
+.albumCard{
     display:flex;
-
-    justify-content:center;
-
     align-items:center;
+    gap:14px;
 
-    z-index:1000;
+    padding:10px;
 
-}
+    border:none;
+    border-bottom:1px solid #ddd;
+    border-radius:0;
 
-.hidden{
-
-    display:none;
-
-}
-
-.popupContent{
-
-    width:500px;
-
-    max-height:600px;
-
-    overflow:auto;
-
-    background:#ECE9D8;
-
-    border:2px solid gray;
-
-    padding:20px;
-
-    box-shadow:8px 8px 0 #555;
-
-}
-
-.releaseOption{
-
-    display:block;
-
-    padding:8px;
-
-    border-bottom:1px solid #ccc;
+    background:white;
 
     cursor:pointer;
 
+    transition:.15s;
 }
 
-.albumCover {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 8px;
+.albumCard:hover{
+
+    background:#eef5ff;
+
 }
+
+.albumMeta{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:6px;
+
+    flex-shrink:0;
+}
+
+.albumScore{
+
+    color:white;
+
+    font-weight:700;
+
+    border-radius:999px;
+
+    padding:3px 10px;
+
+    min-width:48px;
+
+    text-align:center;
+
+}
+
+.albumStars{
+
+    font-size:18px;
+
+    color:#d8a000;
+
+    letter-spacing:1px;
+
+}
+
+/* ==========================
+   Images
+========================== */
+
+.albumCover,
+.albumCard img{
+
+    width:60px;
+    height:60px;
+
+    object-fit:cover;
+
+    border-radius:2px;
+
+    margin:0;
+
+    flex-shrink:0;
+}
+
+.albumInfo{
+
+    flex:1;
+
+    min-width:0;
+
+}
+
+.albumTitle{
+
+    font-size:16px;
+
+    font-weight:700;
+
+    color:#222;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+
+.albumArtist{
+
+    color:#666;
+
+    font-size:14px;
+
+    margin-top:4px;
+
+}
+
+.albumScore{
+
+    margin-top:8px;
+
+    font-weight:700;
+
+    color:#2d6cdf;
+
+}
+
+/* ==========================
+   Popup
+========================== */
+
+.popup{
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(25,25,25,.55);
+
+    backdrop-filter: blur(2px);
+
+    z-index: 1000;
+}
+
+.popupBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.popupContent{
+    width:700px;
+    max-height:85vh;
+
+    display:flex;
+    flex-direction:column;
+
+    background:#f4f4f4;
+
+    border:1px solid #8f8f8f;
+
+    border-radius:4px;
+
+    box-shadow:0 12px 30px rgba(0,0,0,.35);
+
+    overflow:hidden;
+}
+
+.dialogTitle{
+    background: linear-gradient(#f2f2f2, #d8d8d8);
+    border-bottom: 1px solid #9b9b9b;
+
+    padding: 10px 16px;
+
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.releaseLayout{
+
+    display:grid;
+
+    grid-template-columns:260px 1fr;
+
+    gap:20px;
+
+    margin-top:20px;
+
+}
+
+#releaseList{
+    border:1px solid #b8b8b8;
+    background:white;
+
+    max-height:320px;
+    overflow-y:auto;
+}
+
+.releaseOption{
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    padding:8px 10px;
+
+    border-bottom:1px solid #eee;
+
+    cursor:pointer;
+
+    transition:background .15s;
+}
+
+.releaseOption:hover{
+    background:#dce9ff;
+}
+
+.releaseOption input:checked + span{
+    font-weight:600;
+}
+
+#releasePreview{
+
+    display:flex;
+    gap:20px;
+
+    align-items:flex-start;
+
+    background:white;
+
+    border:1px solid #b8b8b8;
+
+    min-height:240px;
+
+    padding:16px;
+}
+
+#releaseCover{
+
+    width:200px;
+    height:200px;
+
+    object-fit:cover;
+
+    border:1px solid #888;
+    border-radius:2px;
+
+    background:white;
+}
+
+#releaseInfo{
+
+    flex:1;
+
+    display:grid;
+
+    row-gap:10px;
+}
+
+#releaseInfo p{
+
+    margin:0;
+
+    padding:6px 0;
+
+    border-bottom:1px solid #ddd;
+}
+
+.popupButtons{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:10px;
+
+    padding:16px;
+
+    border-top:1px solid #c7c7c7;
+
+    background:#ececec;
+
+}
+
+.popupButtons button{
+
+    background:linear-gradient(#ffffff,#ececec);
+
+    color:#222;
+
+    border:1px solid #8a8a8a;
+
+    border-radius:2px;
+
+    padding:7px 18px;
+
+    min-width:110px;
+}
+
+.popupButtons button:hover{
+
+    background:linear-gradient(#ffffff,#f5f5f5);
+}
+

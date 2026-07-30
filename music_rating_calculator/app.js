@@ -258,18 +258,54 @@ document.addEventListener("DOMContentLoaded", function () {
                 const card = document.createElement("div");
                 card.className = "albumCard";
 
+                const starCount = Math.min(5, Math.ceil(album.finalScore));
+
+                const stars =
+                    "★".repeat(starCount) +
+                    "☆".repeat(5 - starCount);
+
+                // Generate score badge color
+                const hue = Math.round(album.percentScore * 1.2);
+                const badgeColor = `hsl(${hue}, 70%, 45%)`;
+
+
                 card.innerHTML = `
                     ${coverHTML}
-                    <h3>${album.artist} – ${album.title}</h3>
-                    <p>Antal låtar: ${album.songs.length}</p>
-                    <p>Betygsatta låtar: ${album.songs.filter(song => song.rating > 0).length}</p>
-                    <p>Medelbetyg: ${album.average.toFixed(2)}</p>
-                    <p>Ändrat betyg: ${album.adjustedScore.toFixed(2)}</p>
-                    <p><strong>${album.finalScore.toFixed(2)}</strong></p>
-                    <p><strong>${album.percentScore}/100</strong></p>
-                    <p>Senast ändrad: ${album.lastEdited}</p>
-                    <button onclick="editAlbum(${index})">Redigera</button>
-                    <button onclick="confirmRemoveAlbum(${index})">Ta bort</button>
+
+                    <div class="albumInfo">
+
+                    <div class="albumTitle">
+                        ${album.title}
+                    </div>
+
+                    <div class="albumArtist">
+                        ${album.artist}
+                    </div>
+
+                    <div class="albumRelease">
+                        ${album.year ? album.year.slice(0, 4) : ""}
+                    </div>
+
+                </div>
+
+                <div class="albumMeta">
+
+                    <div class="albumStars">
+                        ${stars}
+                    </div>
+
+                    <div
+                        class="albumScore"
+                        style="background:${badgeColor}"
+                    >
+                        ${album.percentScore}
+                    </div>
+
+                    <div class="albumDate">
+                        ${album.lastEdited.split(" ")[0]}
+                    </div>
+
+                </div>      
                 `;
                 albumGrid.appendChild(card);
             });
