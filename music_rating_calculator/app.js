@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentAlbum = {};
     let editingAlbumIndex = null;
     let currentDetailAlbum = null;
+    let editingAlbum = null;
 
     // MusicBrainz
     let foundReleases = [];
@@ -51,6 +52,53 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const saveChangesButton = document.getElementById("saveChangesButton");
 
+    const saveMessage = document.getElementById("saveMessage");
+
+    const releaseArtist =
+    document.getElementById("releaseArtist");
+
+    const releaseTitle =
+        document.getElementById("releaseTitle");
+
+    const releaseYear =
+        document.getElementById("releaseYear");
+
+    const releaseCoverUrl =
+        document.getElementById("releaseCoverUrl");
+
+    const manualAlbumPopup =
+    document.getElementById("manualAlbumPopup");
+
+    const manualArtist =
+        document.getElementById("manualArtist");
+
+    const manualTitle =
+        document.getElementById("manualTitle");
+
+    const manualYear =
+        document.getElementById("manualYear");
+
+    const manualCover =
+        document.getElementById("manualCover");
+
+    const manualTrackList =
+        document.getElementById("manualTrackList");
+
+    const createManualAlbum =
+        document.getElementById("createManualAlbum");
+
+    const cancelManual =
+        document.getElementById("cancelManual");
+
+    const addTrackButton =
+    document.getElementById("addTrackButton");
+
+    addTrackButton.onclick = function(){
+
+        addManualTrack();
+
+    };
+
     /* STORAGE */
     function saveAlbums() {
         localStorage.setItem("albums", JSON.stringify(albums));
@@ -72,28 +120,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
         console.log(searchData);
 
-        if (!searchData.releases.length) {
-            throw new Error("Album not found");
-        }
+        if(searchData.releases.length === 0){
 
+            openManualAlbumDialog(
+                artist,
+                title
+            );
+
+            return;
+
+        }
         const unique = [];
         const seen = new Set();
 
         for (const release of searchData.releases) {
-            // Skip releases with missing information
-            if (!release.date) {
-                continue;
-            }
+
             const key = release.id;
 
             if (!seen.has(key)) {
+
                 seen.add(key);
+
                 unique.push(release);
+
             }
+
         }
-        console.log("Showing popup");
 
         foundReleases = unique;
+
+        if (foundReleases.length === 0) {
+
+            openManualAlbumDialog(artist, title);
+
+            return;
+
+        }
+
         showReleasePopup(foundReleases);
     }
 
@@ -295,11 +358,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const card = document.createElement("div");
                 card.className = "albumCard";
 
-                const starCount = Math.min(5, Math.ceil(album.finalScore));
-
-                const stars =
-                    "★".repeat(starCount) +
-                    "☆".repeat(5 - starCount);
+                const stars = `⭐ ${album.finalScore.toFixed(1)}`;
 
                 // Generate score badge color
                 const hue = Math.round(album.percentScore * 1.2);
@@ -326,15 +385,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 <div class="albumMeta">
 
-                    <div class="albumStars">
-                        ${stars}
-                    </div>
-
                     <div
                         class="albumScore"
                         style="background:${badgeColor}"
                     >
                         ${album.percentScore}
+                    </div>
+
+                    <div class="albumStars">
+                        ${stars}
                     </div>
 
                     <div class="albumDate">
@@ -362,6 +421,8 @@ document.addEventListener("DOMContentLoaded", function () {
     function showAlbumDetails(album){
         editingAlbumIndex = albums.indexOf(album);
 
+        editingAlbum = structuredClone(album);
+
         currentDetailAlbum = album;
 
         albumDetails.style.display = "block";
@@ -378,52 +439,77 @@ document.addEventListener("DOMContentLoaded", function () {
         // Track list
         trackList.innerHTML = "";
 
-        album.songs.forEach((song,index)=>{
+        editingAlbum.songs.forEach((song,index)=>{
 
             const row = document.createElement("div");
 
             row.className = "trackRow";
+
+            const emojis = ["⚪", "🔴", "🟠", "🟡", "🟢", "🔵"];
 
             row.innerHTML = `
                 <span class="trackTitle">
                     ${index + 1}. ${song.title}
                 </span>
 
-                <select id="rating${index}" class="trackRating">
-
-                    <option value="0" ${song.rating == 0 || song.rating == null ? "selected" : ""}>
-                        ⚪ Unrated
-                    </option>
-
-                    <option value="1" ${song.rating == 1 ? "selected" : ""}>🔴 Red</option>
-                    <option value="2" ${song.rating == 2 ? "selected" : ""}>🟠 Orange</option>
-                    <option value="3" ${song.rating == 3 ? "selected" : ""}>🟡 Yellow</option>
-                    <option value="4" ${song.rating == 4 ? "selected" : ""}>🟢 Green</option>
-                    <option value="5" ${song.rating == 5 ? "selected" : ""}>🔵 Blue</option>
-
-                </select>
+                <div class="ratingButtons">
+                    ${emojis.map((emoji, rating) => `
+                        <button
+                            class="ratingButton ${song.rating === rating ? "selected" : ""}"
+                            data-song="${index}"
+                            data-rating="${rating}">
+                            ${emoji}
+                        </button>
+                    `).join("")}
+                </div>
             `;
 
             trackList.appendChild(row);
 
         });
 
-        const rated = album.songs.filter(song => song.rating > 0).length;
+        trackList.onclick = function(event) {
+
+            const button = event.target.closest(".ratingButton");
+
+            if (!button) return;
+
+            const songIndex = Number(button.dataset.song);
+            const rating = Number(button.dataset.rating);
+
+            // Update the album in memory
+            editingAlbum.songs[songIndex].rating = rating;
+
+            calculateAndSave(editingAlbum, false);
+
+            // Remove selection from this song only
+            button.parentElement
+                .querySelectorAll(".ratingButton")
+                .forEach(btn => btn.classList.remove("selected"));
+
+            // Highlight clicked button
+            button.classList.add("selected");
+
+        };
+
+        const rated = editingAlbum.songs.filter(song => song.rating > 0).length;
 
         // Statistics
         albumStats.innerHTML = `
 
             <h3>Statistics</h3>
 
-            <p><strong>Average:</strong> ${album.average.toFixed(2)}</p>
+            <p><strong>Average:</strong> ${editingAlbum.average.toFixed(2)}</p>
 
-            <p><strong>Adjusted:</strong> ${album.adjustedScore.toFixed(2)}</p>
+            <p><strong>Adjusted:</strong> ${editingAlbum.adjustedScore.toFixed(2)}</p>
 
-            <p><strong>Overall:</strong> ${album.percentScore}%</p>
+            <p><strong>Displayed rating:</strong> ${editingAlbum.finalScore} ★</p>
 
-             <p><strong>Rated:</strong> ${rated}/${album.songs.length}</p>
+            <p><strong>Overall:</strong> ${editingAlbum.percentScore}%</p>
 
-            <p><strong>Edited:</strong> ${album.lastEdited}</p>
+             <p><strong>Total songs rated:</strong> ${rated}/${editingAlbum.songs.length}</p>
+
+            <p><strong>Edited:</strong> ${editingAlbum.lastEdited}</p>
 
         `;
     }
@@ -487,8 +573,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateReleasePreview(release){
 
-        releaseCover.src =
+        releaseArtist.value =
+            release["artist-credit"][0].name;
+
+        releaseTitle.value =
+            release.title;
+
+        releaseYear.value =
+            release.date || "";
+
+        const coverUrl =
             `https://coverartarchive.org/release/${release.id}/front-500`;
+
+        releaseCover.src = coverUrl;
+
+        releaseCoverUrl.value = coverUrl;
 
         releaseCountry.textContent =
             release.country || "Unknown";
@@ -498,23 +597,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
-    saveChangesButton.onclick = function(){
+    saveChangesButton.onclick = function () {
 
-        currentDetailAlbum.songs.forEach((song,index)=>{
+        // Replace the original album with the edited copy
+        albums[editingAlbumIndex] = editingAlbum;
 
-            song.rating = Number(
-                document.getElementById(`rating${index}`).value
-            );
+        // Recalculate scores
+        calculateAndSave(albums[editingAlbumIndex]);
 
-        });
-
-        calculateAndSave(currentDetailAlbum);
-
+        // Save to localStorage
         saveAlbums();
 
+        saveMessage.textContent = "Changes saved ✓";
+        saveMessage.classList.add("show");
+
+        setTimeout(() => {
+
+            saveMessage.classList.remove("show");
+
+        }, 2000);
+
+
+        // Refresh the library
         displayAlbums();
 
-        showAlbumDetails(currentDetailAlbum);
+        // Reopen the saved album
+        showAlbumDetails(albums[editingAlbumIndex]);
 
     };
 
@@ -534,20 +642,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         currentAlbum = {
 
-            artist:
-            selectedRelease["artist-credit"][0].name,
+            artist: releaseArtist.value.trim(),
 
-            title:
-            selectedRelease.title,
+            title: releaseTitle.value.trim(),
 
-            year:
-            selectedRelease.date,
+            year: releaseYear.value.trim(),
 
-            mbid:
-            selectedRelease.id,
-
-            cover:
-            `https://coverartarchive.org/release/${selectedRelease.id}/front-500`,
+            cover: releaseCoverUrl.value.trim(),
 
             songs: (album.media?.[0]?.tracks ?? []).map(track => ({
                 title: track.title,
@@ -565,6 +666,96 @@ document.addEventListener("DOMContentLoaded", function () {
         displayAlbums();
 
         showAlbumDetails(currentAlbum);
+
+    };
+
+    function addManualTrack(name = "") {
+
+        const row = document.createElement("input");
+
+        row.type = "text";
+
+        row.className = "manualTrack";
+
+        row.placeholder = "Track name";
+
+        row.value = name;
+
+        manualTrackList.appendChild(row);
+
+    }
+    function openManualAlbumDialog(artist, title){
+
+        manualArtist.value = artist;
+
+        manualTitle.value = title;
+
+        manualYear.value = "";
+
+        manualCover.value = "";
+
+        // Clear any tracks from a previous manual album
+        manualTrackList.innerHTML = "";
+
+        // Add 10 empty track inputs
+        addManualTrack();
+
+        manualAlbumPopup.classList.remove("hidden");
+
+    }
+    createManualAlbum.onclick = function(){
+        if (!manualArtist.value.trim() || !manualTitle.value.trim()) {
+        alert("Please enter an artist and album title.");
+        return;
+    }
+
+    const songs = [...manualTrackList.querySelectorAll(".manualTrack")]
+        .filter(input => input.value.trim())
+        .map(input => ({
+            title: input.value.trim(),
+            rating: 0
+        }));
+
+    if (songs.length === 0) {
+        alert("Please add at least one track.");
+        return;
+    }
+
+        const album = {
+
+            id: crypto.randomUUID(),
+
+            artist: manualArtist.value,
+
+            title: manualTitle.value,
+
+            year: manualYear.value,
+
+            cover: manualCover.value || "assets/no-cover.png",
+
+            songs,
+
+            mbid: null
+
+        };
+
+        calculateAndSave(album);
+
+        albums.push(album);
+
+        saveAlbums();
+
+        displayAlbums();
+
+        manualAlbumPopup.classList.add("hidden");
+
+        showAlbumDetails(album);
+
+    };
+
+    cancelManual.onclick = function(){
+
+        manualAlbumPopup.classList.add("hidden");
 
     };
 
@@ -588,7 +779,8 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             await fetchAlbum(artist, title);
         }
-        catch {
+        catch (err) {
+            console.error(err);
             alert("Album could not be found.");
         }
 

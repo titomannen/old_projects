@@ -143,9 +143,61 @@
                     🗑 Remove Album
                 </button>
 
+                <div id="saveMessage"></div>
+
             </div>
 
         </section>
+
+    </div>
+    <div id="manualAlbumPopup" class="popup hidden">
+
+        <div class="popupContent">
+
+            <div class="dialogTitle">
+                Create Album Manually
+            </div>
+
+            <div class="popupBody">
+
+                <label>Artist</label>
+                <input id="manualArtist">
+
+                <label>Album</label>
+                <input id="manualTitle">
+
+                <label>Release Year</label>
+                <input id="manualYear">
+
+                <label>Cover URL (optional)</label>
+                <input id="manualCover">
+
+                <h3>Tracks</h3>
+
+                <div id="manualTrackList"></div>
+
+                <button id="addTrackButton">
+                    + Add Track
+                </button>
+
+            </div>
+
+            <div class="popupButtons">
+
+                <button id="cancelManual">
+                    Cancel
+                </button>
+
+                <button
+                    id="createManualAlbum"
+                    class="primaryButton">
+
+                    Create Album
+
+                </button>
+            </div>
+
+        </div>
 
     </div>
 
@@ -173,14 +225,28 @@
                             src=""
                             alt="Album Cover"
                         >
-
+                        
                         <div id="releaseInfo">
 
-                            <p id="releaseCountry"></p>
-                            <p id="releaseFormat"></p>
-                            <p id="releaseLabel"></p>
-                            <p id="releaseTracks"></p>
-                            <p id="releaseGenres"></p>
+                            <label>Artist</label>
+                            <input id="releaseArtist">
+
+                            <label>Album</label>
+                            <input id="releaseTitle">
+
+                            <label>Release Year</label>
+                            <input id="releaseYear">
+
+                            <label>Cover URL</label>
+                            <input id="releaseCoverUrl">
+
+                            <hr>
+
+                            <p><strong>Country:</strong> <span id="releaseCountry"></span></p>
+                            <p><strong>Format:</strong> <span id="releaseFormat"></span></p>
+                            <p><strong>Label:</strong> <span id="releaseLabel"></span></p>
+                            <p><strong>Tracks:</strong> <span id="releaseTracks"></span></p>
+                            <p><strong>Genres:</strong> <span id="releaseGenres"></span></p>
 
                         </div>
 
