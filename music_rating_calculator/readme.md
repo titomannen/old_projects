@@ -8,3 +8,4 @@ I usually did this for ratemymusic by doing the mathematics in my head or using 
 
 Updated version as of 17/08/2025:
 <img width="1778" height="959" alt="image" src="https://github.com/user-attachments/assets/b0bc89f1-105a-4bce-bc97-e085cf4ee85c" />
+<img width="1730" height="951" alt="image" src="https://github.com/user-attachments/assets/043fdfc7-fbad-4a10-999a-0c0a4bda4200" />
