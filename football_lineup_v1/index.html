@@ -1,497 +1,653 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Custom Football Lineup Creator</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #202e41; color: #fff; margin: 0; }
-    #main-wrapper {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      align-items: stretch;
-    }
-    #top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 50px;
-      padding: 28px 30px 18px 30px;
-      flex-wrap: wrap;
-    }
-    #controls {
-      display: flex; flex-direction: row; gap: 14px; background: #283a56; padding: 16px 24px; border-radius: 14px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    #controls label { font-size: 16px; margin-right: 7px; }
-    #controls input[type="text"], #controls input[type="number"] {
-      padding: 5px 10px;
-      border-radius: 7px;
-      border: none;
-      font-size: 16px;
-      margin-top: 0;
-    }
-    #controls input[type="color"] {
-      width: 32px; height: 22px; border-radius: 7px; margin-left: 3px;
-      border: 1px solid #aaa;
-      padding: 0;
-    }
-    #controls button {
-      background: #2276f8; color: #fff; font-weight: bold; cursor: pointer;
-      padding: 6px 14px; border-radius: 7px; border: none; font-size: 15px; margin: 0 3px;
-    }
-    #controls button:hover { background: #2e96ff; }
-    #controls .danger { background: #e84d4d; }
-    #controls .yellow { background: #ffbc1c; color: #5e4a06; }
-    #controls small {
-      display: block;
-      width: 100%;
-      margin-top: 7px;
-      color: #ccdbff;
-      font-size: 13px;
-    }
-    #saves-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px 28px;
-  padding: 18px 16px 8px 20px;
-  align-items: flex-end;
-  min-width: 300px;
-  min-height: 70px;
-  border-radius: 14px;
-  background: #212d43;
-  margin-left: 0;
-  margin-top: 0;
-  max-width: 900px;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chelsea Tactical Board — Drawing Prototype</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#172235;color:#fff;font-family:Arial,sans-serif}
+#app{min-height:100vh;display:flex;flex-direction:column}
+#toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:14px 18px;background:#202e41;border-bottom:1px solid #ffffff18}
+button,input,select{font:inherit}
+button{border:0;border-radius:7px;padding:8px 12px;background:#2d78f4;color:white;font-weight:700;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+button.active{outline:2px solid #fff;box-shadow:0 0 0 3px #2d78f455}
+button.secondary{background:#33445d}
+button.danger{background:#d94a4a}
+#toolbar input,#toolbar select{background:#fff;color:#172235;border:0;border-radius:7px;padding:8px 9px}
+#hint{margin-left:auto;color:#b9c8dd;font-size:13px}
+#workspace{display:flex;justify-content:center;padding:22px}
+#pitchWrap{position:relative;width:min(1150px,94vw);aspect-ratio:1150/730}
+#pitch{
+  position:absolute;inset:0;overflow:hidden;border:3px solid white;border-radius:18px;
+  background:
+    repeating-linear-gradient(90deg,#178c45 0,#178c45 8.695%,#19964b 8.695%,#19964b 17.39%);
+  box-shadow:0 10px 40px #0006;
 }
-.folder-save {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  position: relative;
-  user-select: none;
-  transition: transform 0.07s;
-  width: 128px;
-}
-.folder-save:active {
-  transform: scale(0.97);
-}
-.folder-svg {
-  width: 68px;
-  height: 48px;
-  display: block;
-}
-.folder-label {
-  color: #ffec88;
-  font-size: 17px;
-  margin-top: 2px;
-  text-shadow: 0 1px 4px #3337;
-  background: none;
-  border: none;
-  padding: 0 7px;
-  width: 120px;
-  max-width: 120px;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: pointer;
-  font-weight: 600;
-}
-.delete-tip {
-  font-size: 13px;
-  color: #fff4;
-  margin-top: 1px;
-  display: none;
-  position: absolute;
-  bottom: -18px;
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: none;
-  z-index: 2;
-  background: #202e41d6;
-  border-radius: 6px;
-  padding: 0 7px;
-}
-.folder-save:hover .delete-tip { display: block; }
-
-
-    #pitch-wrapper {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: flex-start;
-      margin-top: 22px;
-      width: 100%;
-      gap: 0;
-    }
-    #pitch {
-      position: relative; 
-      width: 1150px; height: 730px; /* Big pitch! */
-      background: #17a054; 
-      border: 3.5px solid #fff; 
-      border-radius: 26px;
-      background-image: linear-gradient(90deg, #188c45 0%, #1eb265 100%);
-      box-shadow: 0 8px 32px #0005;
-      margin: 0 auto;
-      overflow: hidden;
-    }
-    .player {
-      position: absolute;
-      display: flex; flex-direction: column; align-items: center; cursor: move;
-      user-select: none;
-    }
-    .player-name {
-      color: #fff;
-      font-weight: bold;
-      margin-bottom: 2px;
-      font-size: 14px;
-      text-shadow: 0 2px 6px #000a;
-      cursor: pointer;
-      background: none;
-      border: none;
-      outline: none;
-      padding: 0;
-      text-align: center;
-      width: 60px;
-      white-space: nowrap;
-      overflow: visible;
-    }
-    .player-circle {
-      background: #2276f8;
-      border-radius: 50%;
-      width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: bold; font-size: 17px;
-      box-shadow: 0 2px 8px #0003;
-      border: 2px solid #fff;
-      position: relative;
-      transition: box-shadow 0.1s, background 0.2s;
-      z-index: 1;
-      cursor: pointer;
-    }
-    .player-circle input[type="color"] {
-      display: none;
-      position: absolute;
-      left: 0; top: 0;
-    }
-    .shirt-number {
-      pointer-events: none;
-      font-size: 17px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: 0.5px;
-      text-shadow: 0 2px 6px #000a;
-      user-select: none;
-    }
-    .remove-btn {
-      position: absolute;
-      top: -12px; right: -8px;
-      background: #e84d4d; color: #fff; border: none; border-radius: 50%; width: 17px; height: 17px; cursor: pointer;
-      font-size: 12px; display: flex; align-items: center; justify-content: center; padding: 0;
-      z-index: 2;
-    }
-    .player:active .player-circle { box-shadow: 0 4px 20px #0006; }
-    .edit-input {
-      background: none; border: none; border-bottom: 1px solid #fff; color: #fff; font-size: 14px;
-      text-align: center; width: 60px;
-    }
-    .edit-input:focus { outline: none; border-bottom: 1.5px solid #2e96ff; }
-    .edit-number {
-      background: none; border: none; border-bottom: 1px solid #fff; color: #fff; font-size: 15px; width: 22px;
-      text-align: center;
-    }
-    .edit-number:focus { outline: none; border-bottom: 1.5px solid #2e96ff; }
-    #footer { margin: 24px auto; text-align: center; color: #c9e8ee; font-size: 13px; }
-  </style>
+#pitch::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:#fff;transform:translateX(-50%)}
+#pitch::after{content:"";position:absolute;left:50%;top:50%;width:145px;height:145px;border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%)}
+.markings{position:absolute;inset:0;pointer-events:none}
+.box{position:absolute;top:24%;height:52%;width:16%;border:2px solid #fff}
+.box.left{left:0;border-left:0}.box.right{right:0;border-right:0}
+.six{position:absolute;top:36%;height:28%;width:7%;border:2px solid #fff}
+.six.left{left:0;border-left:0}.six.right{right:0;border-right:0}
+#svg{position:absolute;inset:0;width:100%;height:100%;z-index:5;overflow:visible}
+#players{position:absolute;inset:0;z-index:10}
+.player{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;cursor:grab;user-select:none}
+.player:active{cursor:grabbing}
+.playerName{font-weight:800;font-size:13px;text-shadow:0 2px 5px #000;margin-bottom:3px;white-space:nowrap}
+.playerCircle{width:38px;height:38px;border:2px solid #fff;border-radius:50%;display:grid;place-items:center;font-weight:900;box-shadow:0 3px 10px #0007}
+.player.opp .playerCircle{background:#d64b4b}
+.player.chelsea .playerCircle{background:#2878ee}
+#landing{min-height:100vh;background:#172235;display:flex;justify-content:center;align-items:flex-start;padding:55px 20px}
+#landingCard{width:min(900px,95vw);background:#202e41;border-radius:18px;padding:30px;box-shadow:0 15px 50px #0006}
+#landingHeader{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}
+#landingHeader h1{margin:0;font-size:28px}
+.matchList{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.matchCard{background:#2a3b54;border:1px solid #ffffff12;border-radius:12px;padding:16px;cursor:pointer}
+.matchCard:hover{background:#334761}
+.matchTitle{font-size:18px;font-weight:800}.matchMeta{color:#b9c8dd;font-size:13px;margin-top:6px}
+.matchActions{margin-top:13px;display:flex;gap:7px}
+#boardShell{display:none;min-height:100vh}
+#notesPanel{width:min(330px,27vw);min-width:250px;background:#202e41;border-radius:12px;padding:16px;box-shadow:0 8px 25px #0004}
+#notesPanel h3{margin:0 0 10px}.noteItem{padding:10px;border-radius:8px;background:#2a3b54;margin-bottom:8px;border-left:3px solid #ffe16a}
+.noteItem small{display:block;color:#aebed3;margin-top:4px}
+#workspace{gap:18px;align-items:flex-start}
+#sceneBar{display:flex;gap:8px;align-items:center;overflow-x:auto;padding:10px 18px;background:#1c293d;border-bottom:1px solid #ffffff12;min-height:58px}
+.sceneCard{min-width:175px;padding:10px 12px;border-radius:10px;background:#2b3b54;color:#dbe7f7;cursor:pointer;border:1px solid transparent;box-shadow:0 3px 10px #0003}
+.sceneCard:hover{background:#334761}
+.sceneCard.active{border-color:#fff;background:#3566a8}
+.sceneTitle{font-weight:800;font-size:13px}.sceneMeta{font-size:11px;color:#b9c8dd;margin-top:3px}
+.sceneDelete{float:right;background:none;padding:0 2px;color:#ff9b9b;font-size:13px}
+#status{padding:0 22px 16px;color:#aebed3;font-size:13px;text-align:center}
+.arrow{fill:none;stroke-width:4;cursor:pointer;pointer-events:stroke}
+.arrow.pass{stroke:#fff}
+.arrow.run{stroke:#ffe16a;stroke-dasharray:10 8}
+.arrow.selected{stroke-width:6}
+.arrowHead{pointer-events:none}
+.zoneShape{fill:#ffe16a22;stroke:#ffe16a;stroke-width:2;cursor:pointer}
+.zoneShape.selected{stroke-width:4}
+.tacticLine{stroke:#ff6b6b;stroke-width:4;stroke-dasharray:12 8;cursor:pointer}
+.tacticLine.selected{stroke-width:6}
+.noteBox{fill:#172235dd;stroke:#ffe16a;stroke-width:2;cursor:pointer}
+.noteText{fill:#fff;font-size:14px;font-weight:700;pointer-events:none}
+.emptyNote{color:#9fb0c7}
+</style>
 </head>
 <body>
-  <div id="main-wrapper">
-    <div id="top-bar">
-      <div id="controls">
-        <label for="playerName">Add player</label>
-        <input id="playerName" type="text" placeholder="Name (optional)">
-        <input id="playerNumber" type="number" placeholder="Shirt #" min="0" max="99" style="width: 55px;">
-        <span style="margin-left:7px;">Colour:</span>
-        <input id="playerColor" type="color" value="#2276f8">
-        <button onclick="addPlayer()">Add Player</button>
-        <button class="danger" onclick="clearBoard()">Clear Board</button>
-        <input id="saveName" type="text" placeholder="Save name" style="width:100px;">
-        <button class="yellow" onclick="saveLineup()">
-          Save <span style="font-size:17px;">&#128193;</span>
-        </button>
-        <small>(Drag to move. Click ❌ to delete. Click name/number to edit, click circle to change colour.)</small>
+<div id="app">
+  <div id="landing">
+    <div id="landingCard">
+      <div id="landingHeader">
+        <div><h1>Chelsea Tactical Analysis</h1><div style="color:#aebed3;margin-top:5px">Your matches and tactical briefings</div></div>
+        <button onclick="createMatch()">+ Add match</button>
       </div>
-      <div id="saves-bar"></div>
-    </div>
-    <div id="pitch-wrapper">
-      <div id="pitch"></div>
-    </div>
-    <div id="footer">
-      Simple football lineup app. Add, move, rename, change number/colour, or remove unlimited players! Saves work like classic game folders.
+      <div id="matchList" class="matchList"></div>
     </div>
   </div>
-  <script>
-    let playerId = 0;
-    const pitch = document.getElementById('pitch');
-    const savesBar = document.getElementById('saves-bar');
-    let ignoreClick = false; // Prevent triggering load when deleting
 
-    function addPlayer(playerData) {
-      let name, number, color, left, top;
-      if (playerData) {
-        ({ name, number, color, left, top } = playerData);
-      } else {
-        name = document.getElementById('playerName').value.trim() || '';
-        number = document.getElementById('playerNumber').value.trim() || '';
-        color = document.getElementById('playerColor').value;
-        left = Math.random() * (pitch.clientWidth - 40);
-        top = Math.random() * (pitch.clientHeight - 40);
+  <div id="boardShell">
+  <div id="toolbar">
+    <strong style="margin-right:8px">TACTICAL BOARD</strong>
+    <button id="selectBtn" class="active" onclick="setTool('select')">Select</button>
+    <button id="passBtn" onclick="setTool('pass')">Pass</button>
+    <button id="runBtn" onclick="setTool('run')">Run</button>
+    <button id="zoneBtn" onclick="setTool('zone')">Zone</button>
+    <button id="lineBtn" onclick="setTool('line')">Line</button>
+    <button id="noteBtn" onclick="setTool('note')">Note</button>
+    <button class="secondary" onclick="undo()">Undo</button>
+    <button class="danger" onclick="clearArrows()">Clear arrows</button>
+    <span style="width:1px;height:28px;background:#ffffff22;margin:0 4px"></span>
+    <input id="playerName" placeholder="Player">
+    <select id="playerTeam"><option value="chelsea">Chelsea</option><option value="opp">Opponent</option></select>
+    <button onclick="addPlayer()">Add player</button>
+    <span id="hint">Select: move players • Pass/Run: drag on the pitch • Click an arrow to select</span>
+  </div>
+
+  <div id="sceneBar"></div>
+  <div id="workspace">
+    <div id="pitchWrap">
+      <div id="pitch">
+        <div class="markings">
+          <div class="box left"></div><div class="box right"></div>
+          <div class="six left"></div><div class="six right"></div>
+        </div>
+        <svg id="svg">
+          <defs>
+            <marker id="whiteHead" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L8,3.5 L0,7 Z" fill="#fff"></path>
+            </marker>
+            <marker id="yellowHead" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+              <path d="M0,0 L8,3.5 L0,7 Z" fill="#ffe16a"></path>
+            </marker>
+          </defs>
+          <g id="zones"></g><g id="lines"></g><g id="notes"></g><g id="arrows"></g>
+          <line id="preview" x1="0" y1="0" x2="0" y2="0" style="display:none"></line>
+        </svg>
+        <div id="players"></div>
+      </div>
+    </div>
+    <aside id="notesPanel">
+      <h3>Briefing Notes</h3>
+      <div id="notesList"><div class="emptyNote">No notes yet.</div></div>
+      <button class="secondary" style="width:100%;margin-top:6px" onclick="addPanelNote()">+ Add note</button>
+    </aside>
+  </div>
+  <div id="status">Each briefing stores its own tactical snapshot. Notes live outside the pitch so the diagram stays clean. <span id="saveStatus"></span></div>
+  </div>
+</div>
+
+<script>
+let nextPlayerId=1, nextObjectId=1;
+let players=[], arrows=[], zones=[], lines=[], notes=[];
+let selectedObject=null, tool='select', drawing=false, start=null;
+const pitch=document.getElementById('pitch');
+const playersLayer=document.getElementById('players');
+const arrowsLayer=document.getElementById('arrows');
+const zonesLayer=document.getElementById('zones');
+const linesLayer=document.getElementById('lines');
+const notesLayer=document.getElementById('notes');
+const preview=document.getElementById('preview');
+
+
+let scenes=[], currentSceneId=null, matchMeta={name:'',date:'',minute:''};
+let matches=[], currentMatchId=null;
+
+
+function loadMatchesLibrary(){
+  try{matches=JSON.parse(localStorage.getItem('chelseaMatches')||'[]')}catch{matches=[]}
+  renderMatchList();
+}
+function persistMatches(){
+  localStorage.setItem('chelseaMatches',JSON.stringify(matches));
+}
+function createMatch(){
+  const name=prompt('Match name (e.g. Chelsea vs Arsenal):');
+  if(!name || !name.trim()) return;
+
+  const id=Date.now();
+  const match={
+    id:id,
+    name:name.trim(),
+    date:'',
+    briefings:[]
+  };
+
+  matches.unshift(match);
+  persistMatches();
+
+  // Enter the board directly.
+  currentMatchId=id;
+  matchMeta={name:match.name,date:'',minute:''};
+  scenes=[];
+  currentSceneId=null;
+
+  document.getElementById('landing').style.display='none';
+  document.getElementById('boardShell').style.display='block';
+
+  // Create the first briefing without relying on the previous match state.
+  createFirstBriefing();
+  renderMatchList();
+}
+function createFirstBriefing(){
+  const id=Date.now()+1;
+  const briefing={
+    id:id,
+    title:'Briefing 1',
+    phase:'Starting shape',
+    match:{...matchMeta},
+    players:[],
+    arrows:[],
+    zones:[],
+    lines:[],
+    notes:[]
+  };
+
+  scenes=[briefing];
+  currentSceneId=id;
+
+  restoreScene(briefing);
+  renderSceneBar();
+  saveCurrentMatchToLibrary();
+}
+
+function saveCurrentMatchToLibrary(){
+  if(currentMatchId===null) return;
+  const m=matches.find(x=>x.id===currentMatchId);
+  if(!m) return;
+
+  m.name=matchMeta.name || m.name;
+  m.date=matchMeta.date || '';
+  m.briefings=structuredClone(scenes);
+  persistMatches();
+}
+
+function openMatch(id){
+  const m=matches.find(x=>x.id===id);
+  if(!m)return;
+
+  currentMatchId=id;
+  matchMeta={name:m.name,date:m.date||'',minute:''};
+
+  document.getElementById('landing').style.display='none';
+  document.getElementById('boardShell').style.display='block';
+
+  if(!m.briefings || m.briefings.length===0){
+    createFirstBriefing();
+  }else{
+    scenes=structuredClone(m.briefings);
+    currentSceneId=scenes[0].id;
+    restoreScene(scenes[0]);
+    renderSceneBar();
+  }
+
+  renderMatchHeader();
+}
+function renderMatchList(){
+  const list=document.getElementById('matchList'); list.innerHTML='';
+  if(!matches.length){
+    list.innerHTML='<div class="emptyNote">No matches yet. Click “+ Add match” to begin.</div>';return;
+  }
+  matches.forEach(m=>{
+    const card=document.createElement('div');card.className='matchCard';
+    card.innerHTML=`<div class="matchTitle">${escapeHtml(m.name)}</div>
+      <div class="matchMeta">${m.briefings.length} briefing${m.briefings.length===1?'':'s'}${m.date?' • '+escapeHtml(m.date):''}</div>
+      <div class="matchActions">
+        <button>Open</button><button class="danger">Delete</button>
+      </div>`;
+    card.querySelector('button').onclick=e=>{e.stopPropagation();openMatch(m.id)};
+    card.querySelector('.danger').onclick=e=>{
+      e.stopPropagation();
+      if(confirm('Delete this match and all its briefings?')){
+        matches=matches.filter(x=>x.id!==m.id);persistMatches();renderMatchList();
       }
-
-      const player = document.createElement('div');
-      player.className = 'player';
-      player.style.left = left !== undefined ? left + 'px' : (Math.random() * (pitch.clientWidth - 40)) + 'px';
-      player.style.top = top !== undefined ? top + 'px' : (Math.random() * (pitch.clientHeight - 40)) + 'px';
-      player.dataset.id = playerId++;
-
-      // NAME (above the circle)
-      const nameDiv = document.createElement('div');
-      nameDiv.className = 'player-name';
-      nameDiv.textContent = name || 'Player';
-      nameDiv.title = "Click to edit name";
-      nameDiv.onclick = function(e) {
-        e.stopPropagation();
-        editName(nameDiv);
-      };
-
-      // CIRCLE (with number)
-      const circle = document.createElement('div');
-      circle.className = 'player-circle';
-      circle.style.background = color;
-
-      // Hidden color input for changing color
-      const colorInput = document.createElement('input');
-      colorInput.type = 'color';
-      colorInput.value = color;
-      colorInput.oninput = function(e) {
-        circle.style.background = colorInput.value;
-      };
-      circle.appendChild(colorInput);
-      circle.onclick = function(e) {
-        e.stopPropagation();
-        colorInput.click();
-      };
-
-      // SHIRT NUMBER
-      const numberDiv = document.createElement('div');
-      numberDiv.className = 'shirt-number';
-      numberDiv.textContent = number || '';
-      numberDiv.title = "Click to edit shirt number";
-      numberDiv.onclick = function(e) {
-        e.stopPropagation();
-        editNumber(numberDiv);
-      };
-      circle.appendChild(numberDiv);
-
-      // REMOVE button
-      const remove = document.createElement('button');
-      remove.className = 'remove-btn';
-      remove.innerHTML = '❌';
-      remove.onclick = (e) => {
-        e.stopPropagation();
-        pitch.removeChild(player);
-      };
-
-      player.appendChild(nameDiv);
-      player.appendChild(circle);
-      player.appendChild(remove);
-      pitch.appendChild(player);
-
-      // Drag logic
-      let offsetX, offsetY, isDragging = false;
-      player.addEventListener('mousedown', (e) => {
-        if (e.target.tagName === 'INPUT' || e.target.classList.contains('edit-input') || e.target.classList.contains('edit-number')) return;
-        isDragging = true;
-        offsetX = e.offsetX;
-        offsetY = e.offsetY;
-        player.style.zIndex = 10;
-      });
-      document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        let rect = pitch.getBoundingClientRect();
-        let x = e.clientX - rect.left - offsetX;
-        let y = e.clientY - rect.top - offsetY;
-        x = Math.max(0, Math.min(x, pitch.clientWidth - player.offsetWidth));
-        y = Math.max(0, Math.min(y, pitch.clientHeight - player.offsetHeight));
-        player.style.left = x + 'px';
-        player.style.top = y + 'px';
-      });
-      document.addEventListener('mouseup', () => {
-        isDragging = false;
-        player.style.zIndex = 1;
-      });
-
-      if (!playerData) {
-        // Reset inputs
-        document.getElementById('playerName').value = '';
-        document.getElementById('playerNumber').value = '';
-        document.getElementById('playerColor').value = '#2276f8';
-      }
-    }
-
-    function editName(nameDiv) {
-      const oldName = nameDiv.textContent;
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'edit-input';
-      input.value = oldName;
-      input.onkeydown = function(e) {
-        if (e.key === 'Enter') finish();
-      };
-      input.onblur = finish;
-      nameDiv.replaceWith(input);
-      input.focus();
-
-      function finish() {
-        const newName = input.value.trim() || 'Player';
-        const newDiv = document.createElement('div');
-        newDiv.className = 'player-name';
-        newDiv.textContent = newName;
-        newDiv.title = "Click to edit name";
-        newDiv.onclick = function(e) {
-          e.stopPropagation();
-          editName(newDiv);
-        };
-        input.replaceWith(newDiv);
-      }
-    }
-
-    function editNumber(numberDiv) {
-      const oldNumber = numberDiv.textContent;
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.className = 'edit-number';
-      input.value = oldNumber;
-      input.min = 0;
-      input.max = 99;
-      input.onkeydown = function(e) {
-        if (e.key === 'Enter') finish();
-      };
-      input.onblur = finish;
-      numberDiv.replaceWith(input);
-      input.focus();
-
-      function finish() {
-        let value = input.value.trim();
-        if (value.length > 2) value = value.slice(0, 2);
-        const newDiv = document.createElement('div');
-        newDiv.className = 'shirt-number';
-        newDiv.textContent = value;
-        newDiv.title = "Click to edit shirt number";
-        newDiv.onclick = function(e) {
-          e.stopPropagation();
-          editNumber(newDiv);
-        };
-        input.replaceWith(newDiv);
-      }
-    }
-
-    function clearBoard() {
-      pitch.innerHTML = '';
-    }
-
-    // ---- SAVING & LOADING ----
-    function getPlayersData() {
-      return Array.from(pitch.getElementsByClassName('player')).map(player => {
-        const name = player.querySelector('.player-name') ? player.querySelector('.player-name').textContent :
-          player.querySelector('.edit-input').value || 'Player';
-        const circle = player.querySelector('.player-circle');
-        const color = circle.style.background;
-        const numberDiv = circle.querySelector('.shirt-number');
-        const number = numberDiv ? (numberDiv.textContent || '') : '';
-        return {
-          name,
-          number,
-          color,
-          left: parseFloat(player.style.left),
-          top: parseFloat(player.style.top),
-        };
-      });
-    }
-
-    function saveLineup() {
-      const players = getPlayersData();
-      if (!players.length) {
-        alert("Nothing to save!");
-        return;
-      }
-      let name = document.getElementById('saveName').value.trim();
-      if (!name) {
-        const now = new Date();
-        name = 'Save ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      }
-      let saves = JSON.parse(localStorage.getItem('football_lineup_saves') || "[]");
-      // Save as newest
-      saves.unshift({ name, players, timestamp: Date.now() });
-      // Limit to 10 saves
-      if (saves.length > 10) saves = saves.slice(0, 10);
-      localStorage.setItem('football_lineup_saves', JSON.stringify(saves));
-      document.getElementById('saveName').value = '';
-      renderSavesBar();
-    }
-
-    function loadLineup(index) {
-      const saves = JSON.parse(localStorage.getItem('football_lineup_saves') || "[]");
-      if (!saves[index]) return;
-      clearBoard();
-      saves[index].players.forEach(playerData => addPlayer(playerData));
-    }
-
-    function deleteSave(index) {
-      let saves = JSON.parse(localStorage.getItem('football_lineup_saves') || "[]");
-      saves.splice(index, 1);
-      localStorage.setItem('football_lineup_saves', JSON.stringify(saves));
-      renderSavesBar();
-    }
-
-    function renderSavesBar() {
-      savesBar.innerHTML = '';
-      const saves = JSON.parse(localStorage.getItem('football_lineup_saves') || "[]");
-      saves.forEach((save, i) => {
-        const folder = document.createElement('div');
-        folder.className = 'folder-save';
-        folder.title = "Click to load. Right-click to delete.";
-        // Folder SVG
-        folder.innerHTML = `
-          <svg class="folder-svg" viewBox="0 0 48 32">
-            <rect x="2" y="10" width="44" height="18" rx="4" fill="#ffda6a" stroke="#b89b2c" stroke-width="1.5"/>
-            <rect x="2" y="6" width="18" height="8" rx="3" fill="#ffe293" stroke="#b89b2c" stroke-width="1"/>
-          </svg>
-          <span class="folder-label">${save.name}</span>
-          <span class="delete-tip">Right-click to delete</span>
-        `;
-        folder.onclick = (e) => {
-          if (ignoreClick) { ignoreClick = false; return; }
-          loadLineup(i);
-        };
-        folder.oncontextmenu = (e) => {
-          e.preventDefault();
-          if (confirm("Delete this save?")) {
-            ignoreClick = true;
-            deleteSave(i);
-          }
-        };
-        savesBar.appendChild(folder);
-      });
-    }
-
-    // ---- On page load, show saves bar if any
-    window.onload = function() {
-      renderSavesBar();
     };
-  </script>
+    card.onclick=()=>openMatch(m.id);
+    list.appendChild(card);
+  });
+}
+function renderMatchHeader(){
+  document.getElementById('matchName').value=matchMeta.name||'';
+  document.getElementById('matchDate').value=matchMeta.date||'';
+}
+function backToMatch(){
+  syncCurrentMatch();
+  persistMatches();
+  document.getElementById('boardShell').style.display='none';
+  document.getElementById('landing').style.display='flex';
+  loadMatchesLibrary();
+}
+function syncCurrentMatch(){
+  if(currentMatchId===null)return;
+  if(currentSceneId!==null) snapshotCurrentScene();
+  saveCurrentMatchToLibrary();
+}
+function addPanelNote(){
+  const text=prompt('Briefing note:');
+  if(!text||!text.trim())return;
+  notes.push({id:nextObjectId++,x:.5,y:.5,text:text.trim()});
+  renderAll();saveLocal();
+}
+function snapshotCurrentScene(){
+  if(currentSceneId===null) return;
+  const s=scenes.find(x=>x.id===currentSceneId);
+  if(!s)return;
+  s.match={...matchMeta};
+  s.phase=document.getElementById('phaseSelect').value;
+  s.players=structuredClone(players);
+  s.arrows=structuredClone(arrows);
+  s.zones=structuredClone(zones);
+  s.lines=structuredClone(lines);
+  s.notes=structuredClone(notes);
+}
+
+function restoreScene(s){
+  if(!s)return;
+  players=structuredClone(s.players||[]);
+  arrows=structuredClone(s.arrows||[]);
+  zones=structuredClone(s.zones||[]);
+  lines=structuredClone(s.lines||[]);
+  notes=structuredClone(s.notes||[]);
+  matchMeta={...(s.match||{})};
+  document.getElementById('matchName').value=matchMeta.name||'';
+  document.getElementById('matchDate').value=matchMeta.date||'';
+  document.getElementById('matchMinute').value=matchMeta.minute||'';
+  document.getElementById('phaseSelect').value=s.phase||'Starting shape';
+  selectedObject=null;
+  renderPlayers();renderAll();
+}
+
+function newScene(){
+  snapshotCurrentScene();
+  const id=Date.now();
+  const title=document.getElementById('matchName').value.trim() ? `Scene ${scenes.length+1}` : `Scene ${scenes.length+1}`;
+  scenes.push({
+    id,title,phase:document.getElementById('phaseSelect').value,
+    match:{...matchMeta},players:structuredClone(players),arrows:structuredClone(arrows),
+    zones:structuredClone(zones),lines:structuredClone(lines),notes:structuredClone(notes)
+  });
+  currentSceneId=id;
+  renderSceneBar();
+  saveLocal();
+  saveCurrentMatchToLibrary();
+}
+
+function selectScene(id){
+  snapshotCurrentScene();
+  const s=scenes.find(x=>x.id===id);
+  if(!s)return;
+  currentSceneId=id;
+  restoreScene(s);
+  renderSceneBar();saveLocal();
+}
+
+function renameBriefing(){
+  if(currentSceneId===null)return;
+  const s=scenes.find(x=>x.id===currentSceneId);
+  if(!s)return;
+  const title=prompt('Briefing name:',s.title||'Briefing');
+  if(title===null)return;
+  s.title=title.trim()||s.title;
+  renderSceneBar();
+  saveLocal();
+  saveCurrentMatchToLibrary();
+}
+
+function duplicateScene(id){
+  const original=scenes.find(x=>x.id===id);
+  if(!original)return;
+  const title=prompt('Name for duplicated briefing:',`${original.title} copy`);
+  if(title===null)return;
+  const copy=structuredClone(original);
+  copy.id=Date.now();
+  copy.title=title.trim()||`${original.title} copy`;
+  scenes.push(copy);
+  currentSceneId=copy.id;
+  restoreScene(copy);
+  renderSceneBar();
+  saveLocal();
+  saveCurrentMatchToLibrary();
+}
+
+function deleteScene(id){
+  if(scenes.length<=1)return;
+  scenes=scenes.filter(s=>s.id!==id);
+  currentSceneId=scenes[0].id;
+  restoreScene(scenes[0]);renderSceneBar();saveLocal();
+}
+
+function renderSceneBar(){
+  const bar=document.getElementById('sceneBar');
+  bar.innerHTML='';
+  scenes.forEach((s,i)=>{
+    const card=document.createElement('div');
+    card.className='sceneCard'+(s.id===currentSceneId?' active':'');
+    card.innerHTML=`<button class="sceneDelete" title="Delete scene">×</button>
+      <div class="sceneTitle">${escapeHtml(s.title||`Scene ${i+1}`)}</div>
+      <div class="sceneMeta">${escapeHtml(s.phase||'Other')} • ${escapeHtml(s.match?.minute||'—')}</div>`;
+    card.addEventListener('click',()=>selectScene(s.id));
+    card.querySelector('.sceneDelete').addEventListener('click',e=>{e.stopPropagation();deleteScene(s.id)});
+    card.addEventListener('contextmenu',e=>{e.preventDefault();duplicateScene(s.id)});
+    bar.appendChild(card);
+  });
+}
+
+function saveMatch(){
+  syncCurrentMatch();
+  persistMatches();
+  const status=document.getElementById('saveStatus');
+  if(status){
+    status.textContent=' • Saved';
+    clearTimeout(window._saveTimer);
+    window._saveTimer=setTimeout(()=>status.textContent='',1800);
+  }
+}
+
+function setTool(next){
+  tool=next;
+  document.querySelectorAll('#toolbar button').forEach(b=>b.classList.remove('active'));
+  const id={select:'selectBtn',pass:'passBtn',run:'runBtn',zone:'zoneBtn',line:'lineBtn',note:'noteBtn'}[next];
+  document.getElementById(id).classList.add('active');
+  document.getElementById('hint').textContent =
+    next==='select' ? 'Select: move players • click a marking to select • Delete removes it'
+    : next==='note' ? 'Note: click the pitch to add a tactical observation'
+    : next==='zone' ? 'Zone: drag an area • release to create a highlighted tactical zone'
+    : next==='line' ? 'Line: drag across the pitch • release to create a tactical line'
+    : `${next==='pass'?'Pass':'Run'}: drag from the start point to the end point • release to create`;
+}
+
+function posFromEvent(e){
+  const r=pitch.getBoundingClientRect();
+  return {
+    x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),
+    y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))
+  };
+}
+function toPx(p){return {x:p.x*pitch.clientWidth,y:p.y*pitch.clientHeight}}
+
+function addPlayer(data){
+  const p=data||{
+    id:nextPlayerId++,name:document.getElementById('playerName').value.trim()||'Player',
+    team:document.getElementById('playerTeam').value,x:.5+Math.random()*.35,y:.2+Math.random()*.6
+  };
+  if(data) nextPlayerId=Math.max(nextPlayerId,p.id+1);
+  players.push(p); renderPlayers();
+  document.getElementById('playerName').value='';
+}
+
+function renderPlayers(){
+  playersLayer.innerHTML='';
+  players.forEach(p=>{
+    const el=document.createElement('div');
+    el.className=`player ${p.team}`;
+    el.dataset.id=p.id;
+    el.style.left=(p.x*100)+'%'; el.style.top=(p.y*100)+'%';
+    el.innerHTML=`<div class="playerName">${escapeHtml(p.name)}</div><div class="playerCircle">${p.team==='chelsea'?'C':'O'}</div>`;
+    el.addEventListener('pointerdown',e=>{
+      if(tool!=='select') return;
+      e.stopPropagation();
+      dragPlayer(e,p,el);
+    });
+    playersLayer.appendChild(el);
+  });
+}
+function dragPlayer(e,p,el){
+  el.setPointerCapture?.(e.pointerId);
+  const move=ev=>{const q=posFromEvent(ev);p.x=q.x;p.y=q.y;el.style.left=q.x*100+'%';el.style.top=q.y*100+'%';renderArrows()};
+  const up=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);saveLocal()};
+  el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);
+}
+
+pitch.addEventListener('pointerdown',e=>{
+  if(tool==='select') return;
+  if(e.target.closest('.player') || e.target.closest('.arrow') ||
+     e.target.closest('.zoneShape') || e.target.closest('.tacticLine') ||
+     e.target.closest('.noteBox')) return;
+
+  const p=posFromEvent(e);
+
+  if(tool==='note'){
+    const text=prompt('Tactical note:');
+    if(text && text.trim()){
+      notes.push({id:nextObjectId++,x:p.x,y:p.y,text:text.trim()});
+      renderAll(); saveLocal();
+    }
+    return;
+  }
+
+  drawing=true; start=p;
+  const s=toPx(start);
+  preview.style.display='block';
+  preview.setAttribute('x1',s.x); preview.setAttribute('y1',s.y);
+  preview.setAttribute('x2',s.x); preview.setAttribute('y2',s.y);
+  preview.setAttribute('stroke',tool==='pass'?'#fff':tool==='run'?'#ffe16a':tool==='zone'?'#ffe16a':'#ff6b6b');
+  preview.setAttribute('stroke-width','4');
+  preview.setAttribute('stroke-dasharray',tool==='run'||tool==='line'?'10 8':'');
+  preview.setAttribute('marker-end',(tool==='pass'||tool==='run')?(tool==='pass'?'url(#whiteHead)':'url(#yellowHead)'):'');
+});
+pitch.addEventListener('pointermove',e=>{
+  if(!drawing)return;
+  const q=posFromEvent(e),a=toPx(start),b=toPx(q);
+  if(tool==='zone'){
+    preview.setAttribute('x1',Math.min(a.x,b.x)); preview.setAttribute('y1',Math.min(a.y,b.y));
+    preview.setAttribute('x2',Math.max(a.x,b.x)); preview.setAttribute('y2',Math.max(a.y,b.y));
+  }else{
+    preview.setAttribute('x2',b.x); preview.setAttribute('y2',b.y);
+  }
+});
+pitch.addEventListener('pointerup',e=>{
+  if(!drawing)return;
+  drawing=false;
+  const end=posFromEvent(e);
+  preview.style.display='none';
+
+  if(Math.hypot(end.x-start.x,end.y-start.y)<=.025) return;
+
+  if(tool==='pass'||tool==='run'){
+    arrows.push({id:nextObjectId++,type:tool,start:{...start},end:{...end}});
+  }else if(tool==='zone'){
+    zones.push({
+      id:nextObjectId++,
+      x:Math.min(start.x,end.x), y:Math.min(start.y,end.y),
+      width:Math.abs(end.x-start.x), height:Math.abs(end.y-start.y),
+      label:'Zone'
+    });
+  }else if(tool==='line'){
+    lines.push({id:nextObjectId++,start:{...start},end:{...end}});
+  }
+  selectedObject=null; renderAll(); saveLocal();
+});
+
+function renderAll(){renderArrows();renderZones();renderLines();renderNotes();renderNotesPanel()}
+function renderNotesPanel(){
+  const list=document.getElementById('notesList'); if(!list)return;
+  list.innerHTML='';
+  if(!notes.length){
+    list.innerHTML='<div class="emptyNote">No notes yet. Add observations here while reviewing the match.</div>';
+    return;
+  }
+  notes.forEach(n=>{
+    const item=document.createElement('div');item.className='noteItem';
+    item.innerHTML=`<div style="display:flex;gap:8px;align-items:flex-start">
+      <span style="flex:1">${escapeHtml(n.text)}</span>
+      <button class="danger" style="padding:2px 6px;font-size:11px">×</button>
+      </div><small>Briefing observation</small>`;
+    item.querySelector('button').onclick=e=>{
+      e.stopPropagation();
+      notes=notes.filter(x=>x.id!==n.id);
+      selectedObject=null;
+      renderAll();saveLocal();
+    };
+    item.onclick=()=>{selectedObject=n.id;renderAll()};
+    list.appendChild(item);
+  });
+}
+function renderArrows(){
+  arrowsLayer.innerHTML='';
+  arrows.forEach(a=>{
+    const s=toPx(a.start),e=toPx(a.end);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',s.x);line.setAttribute('y1',s.y);line.setAttribute('x2',e.x);line.setAttribute('y2',e.y);
+    line.setAttribute('class',`arrow ${a.type} ${selectedObject===a.id?'selected':''}`);
+    line.setAttribute('marker-end',a.type==='pass'?'url(#whiteHead)':'url(#yellowHead)');
+    line.dataset.id=a.id;
+    line.addEventListener('pointerdown',ev=>{ev.stopPropagation();selectedObject=a.id;renderAll()});
+    arrowsLayer.appendChild(line);
+  });
+}
+function renderZones(){
+  zonesLayer.innerHTML='';
+  zones.forEach(z=>{
+    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('x',z.x*pitch.clientWidth);r.setAttribute('y',z.y*pitch.clientHeight);
+    r.setAttribute('width',z.width*pitch.clientWidth);r.setAttribute('height',z.height*pitch.clientHeight);
+    r.setAttribute('class',`zoneShape ${selectedObject===z.id?'selected':''}`);
+    r.addEventListener('pointerdown',e=>{e.stopPropagation();selectedObject=z.id;renderAll()});
+    zonesLayer.appendChild(r);
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',(z.x+z.width/2)*pitch.clientWidth);t.setAttribute('y',(z.y+z.height/2)*pitch.clientHeight);
+    t.setAttribute('fill','#ffe16a');t.setAttribute('font-size','14');t.setAttribute('font-weight','700');
+    t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');t.textContent=z.label;
+    t.style.pointerEvents='none';zonesLayer.appendChild(t);
+  });
+}
+function renderLines(){
+  linesLayer.innerHTML='';
+  lines.forEach(l=>{
+    const s=toPx(l.start),e=toPx(l.end);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',s.x);line.setAttribute('y1',s.y);line.setAttribute('x2',e.x);line.setAttribute('y2',e.y);
+    line.setAttribute('class',`tacticLine ${selectedObject===l.id?'selected':''}`);
+    line.addEventListener('pointerdown',ev=>{ev.stopPropagation();selectedObject=l.id;renderAll()});
+    linesLayer.appendChild(line);
+  });
+}
+function renderNotes(){ notesLayer.innerHTML=''; }
+function undo(){
+  const last=[...arrows,...zones,...lines,...notes].sort((a,b)=>b.id-a.id)[0];
+  if(!last)return;
+  arrows=arrows.filter(x=>x.id!==last.id);
+  zones=zones.filter(x=>x.id!==last.id);
+  lines=lines.filter(x=>x.id!==last.id);
+  notes=notes.filter(x=>x.id!==last.id);
+  selectedObject=null;renderAll();saveLocal();
+}
+function clearArrows(){arrows=[];selectedObject=null;renderAll();saveLocal()}
+function clearBoard(){
+  if(!confirm('Clear everything from this briefing? This removes all players, arrows, zones, lines and notes.'))return;
+  players=[];arrows=[];zones=[];lines=[];notes=[];
+  selectedObject=null;renderPlayers();renderAll();saveLocal();
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Delete' && selectedObject!==null){
+    arrows=arrows.filter(x=>x.id!==selectedObject);
+    zones=zones.filter(x=>x.id!==selectedObject);
+    lines=lines.filter(x=>x.id!==selectedObject);
+    notes=notes.filter(x=>x.id!==selectedObject);
+    selectedObject=null;renderAll();saveLocal();
+  }
+});
+function saveLocal(){
+  matchMeta={
+    name:document.getElementById('matchName').value,
+    date:document.getElementById('matchDate').value,
+    minute:document.getElementById('matchMinute').value
+  };
+  snapshotCurrentScene();
+  localStorage.setItem('tacticalPrototype',JSON.stringify({
+    players,arrows,zones,lines,notes,nextPlayerId,nextObjectId,scenes,currentSceneId,matchMeta,currentMatchId
+  }));
+  if(currentMatchId!==null){
+    const m=matches.find(x=>x.id===currentMatchId);
+    if(m){m.name=matchMeta.name||m.name;m.date=matchMeta.date||'';m.briefings=structuredClone(scenes);persistMatches();}
+  }
+}
+function loadLocal(){
+  try{
+    const d=JSON.parse(localStorage.getItem('tacticalPrototype')||'null');
+    if(d){
+      players=d.players||[];arrows=d.arrows||[];zones=d.zones||[];lines=d.lines||[];notes=d.notes||[];
+      nextPlayerId=d.nextPlayerId||1;nextObjectId=d.nextObjectId||1;
+      scenes=d.scenes||[];currentSceneId=d.currentSceneId??null;matchMeta=d.matchMeta||matchMeta;currentMatchId=d.currentMatchId??null;
+    }
+  }catch{}
+  loadMatchesLibrary();
+  if(currentMatchId!==null && matches.some(m=>m.id===currentMatchId)){
+    openMatch(currentMatchId);
+  }
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+['matchName','matchDate','matchMinute','phaseSelect'].forEach(id=>{
+  document.getElementById(id).addEventListener('change',()=>{matchMeta={
+    name:document.getElementById('matchName').value,
+    date:document.getElementById('matchDate').value,
+    minute:document.getElementById('matchMinute').value
+  }; if(currentSceneId!==null){const s=scenes.find(x=>x.id===currentSceneId);if(s){s.phase=document.getElementById('phaseSelect').value;s.match={...matchMeta}}} saveLocal();renderSceneBar()});
+});
+loadLocal();
+document.getElementById('landing').style.display='flex';
+document.getElementById('boardShell').style.display='none';
+</script>
 </body>
 </html>
