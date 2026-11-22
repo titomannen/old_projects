@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Calculator App</title>
+    <title>Musikbetyg Kalkylator</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -19,15 +18,14 @@
 
     <div id="layout">
 
-        <!-- Sidebar -->
+        <!-- Sidebar: library -->
         <aside id="sidebar">
 
             <h2>Bibliotek</h2>
 
-            <p id="libraryCount" class="libraryCount">
-                💿 195 album
-            </p>
+            <p id="libraryCount" class="libraryCount">💿 0 album</p>
 
+            <!-- Search, sort and album cards are rendered here by app.js -->
             <div id="results"></div>
 
         </aside>
@@ -35,34 +33,24 @@
         <!-- Workspace -->
         <section id="workspace">
 
-            <div id="editContainer" style="display:none;">
-
-                <h2 id="editTitle"></h2>
-
-                <div id="editInputs"></div>
-
-                <button
-                    id="saveEdit"
-                    class="primaryButton">
-                    Spara ändringar
-                </button>
-
-            </div>
-
+            <!-- Toolbar: add album + backup -->
             <div id="toolbar">
 
                 <input
                     id="artistInput"
                     placeholder="Artist"
+                    aria-label="Artist"
                 >
 
                 <input
                     id="titleInput"
                     placeholder="Album"
+                    aria-label="Album"
                 >
 
                 <button
                     id="setAlbumDetails"
+                    type="button"
                     class="primaryButton">
                     Hämta album
                 </button>
@@ -71,6 +59,7 @@
 
                 <button
                     id="backupButton"
+                    type="button"
                     class="secondaryButton">
                     💾 Exportera
                 </button>
@@ -90,93 +79,74 @@
 
             </div>
 
-            <div id="albumTitleContainer" style="display:none;">
-
-                <h2 id="albumTitleDisplay"></h2>
-
-            </div>
-
-            <div id="ratingsContainer" style="display:none;">
-
-                <div id="ratingInputs"></div>
-
-                <button id="submitRatings" class="primaryButton">
-                    Beräkna Medelbetyg
-                </button>
-
-            </div>
-
+            <!-- Album details -->
             <div id="albumDetails" style="display:none;">
 
                 <div id="albumHero">
 
-                    <img id="detailCover">
+                    <img id="detailCover" alt="Albumomslag">
 
                     <div id="detailInfo">
-
                         <h2 id="detailTitle"></h2>
-
                         <p id="detailArtist"></p>
-
                         <p id="detailYear"></p>
-
-
                     </div>
 
                 </div>
 
                 <div id="albumContent">
-
                     <div id="trackList"></div>
-
                     <div id="albumStats"></div>
-
                 </div>
 
                 <button
                     id="saveChangesButton"
+                    type="button"
                     class="primaryButton">
                     Save Changes
                 </button>
 
-                <button id="deleteAlbumButton" class="secondaryButton">
+                <button
+                    id="deleteAlbumButton"
+                    type="button"
+                    class="secondaryButton">
                     🗑 Remove Album
                 </button>
 
-                <div id="saveMessage"></div>
+                <div id="saveMessage" role="status" aria-live="polite"></div>
 
             </div>
 
         </section>
 
     </div>
+
+    <!-- Manual album popup -->
     <div id="manualAlbumPopup" class="popup hidden">
 
         <div class="popupContent">
 
-            <div class="dialogTitle">
-                Create Album Manually
-            </div>
+            <div class="dialogTitle">Create Album Manually</div>
 
             <div class="popupBody">
 
-                <label>Artist</label>
+                <label for="manualArtist">Artist</label>
                 <input id="manualArtist">
 
-                <label>Album</label>
+                <label for="manualTitle">Album</label>
                 <input id="manualTitle">
 
-                <label>Release Year</label>
+                <label for="manualYear">Release Year</label>
                 <input id="manualYear">
 
-                <label>Cover URL (optional)</label>
+                <label for="manualCover">Cover URL (optional)</label>
                 <input id="manualCover">
 
                 <h3>Tracks</h3>
 
                 <div id="manualTrackList"></div>
 
-                <button id="addTrackButton">
+                <button id="addTrackButton" type="button">
                     + Add Track
                 </button>
 
@@ -184,31 +154,29 @@
 
             <div class="popupButtons">
 
-                <button id="cancelManual">
+                <button id="cancelManual" type="button">
                     Cancel
                 </button>
 
                 <button
                     id="createManualAlbum"
+                    type="button"
                     class="primaryButton">
-
                     Create Album
-
                 </button>
+
             </div>
 
         </div>
 
     </div>
 
-    <!-- Release Popup -->
+    <!-- Release popup (MusicBrainz results) -->
     <div id="releasePopup" class="popup hidden">
 
         <div class="popupContent">
 
-            <div class="dialogTitle">
-                Select Album Release
-            </div>
+            <div class="dialogTitle">Select Album Release</div>
 
             <div class="popupBody">
 
@@ -225,28 +193,25 @@
                             src=""
                             alt="Album Cover"
                         >
-                        
+
                         <div id="releaseInfo">
 
-                            <label>Artist</label>
+                            <label for="releaseArtist">Artist</label>
                             <input id="releaseArtist">
 
-                            <label>Album</label>
+                            <label for="releaseTitle">Album</label>
                             <input id="releaseTitle">
 
-                            <label>Release Year</label>
+                            <label for="releaseYear">Release Year</label>
                             <input id="releaseYear">
 
-                            <label>Cover URL</label>
+                            <label for="releaseCoverUrl">Cover URL</label>
                             <input id="releaseCoverUrl">
 
                             <hr>
 
                             <p><strong>Country:</strong> <span id="releaseCountry"></span></p>
                             <p><strong>Format:</strong> <span id="releaseFormat"></span></p>
-                            <p><strong>Label:</strong> <span id="releaseLabel"></span></p>
-                            <p><strong>Tracks:</strong> <span id="releaseTracks"></span></p>
-                            <p><strong>Genres:</strong> <span id="releaseGenres"></span></p>
 
                         </div>
 
@@ -258,11 +223,11 @@
 
             <div class="popupButtons">
 
-                <button id="confirmRelease">
+                <button id="confirmRelease" type="button">
                     Import Album
                 </button>
 
-                <button id="cancelRelease">
+                <button id="cancelRelease" type="button">
                     Cancel
                 </button>
 
